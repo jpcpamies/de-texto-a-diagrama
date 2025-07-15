@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Texto a Diagrama - Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .main {
+            padding: 2rem 0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+        
+        .input-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .selector-btn {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .selector-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .selector-btn:not(.active) {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        
+        .selector-btn:not(.active):hover {
+            background-color: #d1d5db;
+        }
+        
+        .textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: vertical;
+            outline: none;
+            margin-bottom: 1rem;
+        }
+        
+        .textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .placeholder-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        
+        .placeholder-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            color: #9ca3af;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.75rem;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .diagram-area {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: white;
+            min-height: 16rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .success-message {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .generated-code {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            margin: 20px;
+            width: calc(100vw - 40px);
+            height: calc(100vh - 40px);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow: hidden;
+            background: #f9fafb;
+            position: relative;
+            cursor: grab;
+        }
+
+        .modal-content.dragging {
+            cursor: grabbing;
+        }
+
+        .modal-diagram {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .modal-zoom-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .zoom-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .zoom-display {
+            font-size: 0.75rem;
+            color: #6b7280;
+            min-width: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            const [inputType, setInputType] = useState('text');
+            const [inputText, setInputText] = useState('');
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [diagram, setDiagram] = useState(null);
+            const [error, setError] = useState(null);
+            const [zoomLevel, setZoomLevel] = useState(100);
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [modalZoom, setModalZoom] = useState(100);
+            const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+            const [isDragging, setIsDragging] = useState(false);
+            const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+            const diagramRef = useRef(null);
+            const modalDiagramRef = useRef(null);
+
+            useEffect(() => {
+                // Configurar Mermaid
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'default',
+                    securityLevel: 'loose',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: 14,
+                    themeVariables: {
+                        primaryColor: '#3b82f6',
+                        primaryTextColor: '#1f2937',
+                        primaryBorderColor: '#d1d5db',
+                        lineColor: '#6b7280',
+                        secondaryColor: '#f3f4f6',
+                        tertiaryColor: '#ffffff',
+                        background: '#ffffff',
+                    },
+                });
+            }, []);
+
+            const cleanTextForMermaid = (text) => {
+                // Remover emojis que causan problemas de sintaxis
+                let cleanText = text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+                
+                // Limpiar caracteres especiales problemáticos
+                cleanText = cleanText.replace(/[^\w\sáéíóúñÁÉÍÓÚÑ.,():-]/g, ' ');
+                
+                // Normalizar espacios múltiples
+                cleanText = cleanText.replace(/\s+/g, ' ').trim();
+                
+                return cleanText;
+            };
+
+            const generateMermaidCode = (text) => {
+                const cleanText = cleanTextForMermaid(text);
+                const lowerText = cleanText.toLowerCase();
+                
+                // Detectar recetas de cocina
+                if (lowerText.includes('tortilla') || lowerText.includes('receta') || lowerText.includes('cocinar') || 
+                    lowerText.includes('ingredientes') || lowerText.includes('patatas') || lowerText.includes('cocina')) {
+                    return `graph TD
+    A[Preparar ingredientes] --> B[Calentar aceite en sarten]
+    B --> C[Freir patatas]
+    C --> D[Batir huevos]
+    D --> E[Mezclar patatas con huevos]
+    E --> F[Cuajar tortilla por un lado]
+    F --> G[Dar la vuelta]
+    G --> H[Cuajar por el otro lado]
+    H --> I[Servir caliente]`;
+                }
+                
+                if (lowerText.includes('login') || lowerText.includes('autenticar') || lowerText.includes('usuario')) {
+                    return `graph TD
+    A[Usuario ingresa credenciales] --> B{Validar usuario}
+    B -->|Válido| C[Acceso concedido]
+    B -->|Inválido| D[Mostrar error]
+    D --> A
+    C --> E[Dashboard principal]`;
+                }
+                
+                if (lowerText.includes('proceso') || lowerText.includes('flujo') || lowerText.includes('workflow')) {
+                    return `graph LR
+    A[Inicio] --> B[Recopilar datos]
+    B --> C[Procesar información]
+    C --> D{¿Es válido?}
+    D -->|Sí| E[Guardar resultado]
+    D -->|No| F[Reportar error]
+    E --> G[Fin]
+    F --> G`;
+                }
+                
+                if (lowerText.includes('compra') || lowerText.includes('tienda') || lowerText.includes('carrito')) {
+                    return `graph TD
+    A[Explorar productos] --> B[Añadir al carrito]
+    B --> C[Ver carrito]
+    C --> D[Proceder al pago]
+    D --> E[Introducir datos de pago]
+    E --> F[Confirmar pedido]
+    F --> G[Pedido completado]`;
+                }
+                
+                if (lowerText.includes('clase') || lowerText.includes('objeto') || lowerText.includes('herencia')) {
+                    return `classDiagram
+    class Usuario {
+        +String nombre
+        +String email
+        +login()
+        +logout()
+    }
+    class Administrador {
+        +String permisos
+        +gestionarUsuarios()
+    }
+    Usuario <|-- Administrador`;
+                }
+                
+                // Extraer conceptos principales de manera más robusta
+                const words = cleanText.split(/\s+/).filter(word => 
+                    word.length > 3 && 
+                    !['para', 'pero', 'este', 'esta', 'solo', 'cada', 'todo', 'todos', 'todas'].includes(word.toLowerCase())
+                );
+                const mainConcepts = words.slice(0, 4).map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                );
+                
+                if (mainConcepts.length >= 2) {
+                    return `graph TD
+    A[${mainConcepts[0] || 'Inicio'}] --> B[${mainConcepts[1] || 'Proceso'}]
+    B --> C[${mainConcepts[2] || 'Análisis'}]
+    C --> D[${mainConcepts[3] || 'Resultado'}]`;
+                }
+                
+                return `graph TD
+    A[Inicio] --> B[Proceso]
+    B --> C[Resultado]
+    C --> D[Fin]`;
+            };
+
+            const generateDiagramTitle = (inputText, diagramType) => {
+                const text = inputText.toLowerCase().trim();
+                
+                const patterns = [
+                    {
+                        keywords: ['tortilla', 'receta', 'cocinar', 'ingredientes', 'patatas', 'cocina'],
+                        titles: ['Receta de Tortilla de Patatas', 'Proceso de Cocina', 'Elaboración de Tortilla']
+                    },
+                    {
+                        keywords: ['login', 'autenticar', 'autenticación', 'usuario', 'contraseña'],
+                        titles: ['Sistema de Autenticación', 'Proceso de Login', 'Flujo de Autenticación']
+                    },
+                    {
+                        keywords: ['compra', 'carrito', 'tienda', 'pago', 'ecommerce', 'checkout'],
+                        titles: ['Proceso de Compra', 'Flujo E-commerce', 'Sistema de Pagos']
+                    },
+                    {
+                        keywords: ['proceso', 'workflow', 'flujo', 'procedimiento'],
+                        titles: ['Flujo de Proceso', 'Workflow del Sistema', 'Procedimiento Operativo']
+                    },
+                    {
+                        keywords: ['clase', 'objeto', 'herencia', 'uml'],
+                        titles: ['Diagrama de Clases', 'Estructura UML', 'Modelo de Objetos']
+                    }
+                ];
+
+                for (const pattern of patterns) {
+                    const hasKeyword = pattern.keywords.some(keyword => text.includes(keyword));
+                    if (hasKeyword) {
+                        return pattern.titles[Math.floor(Math.random() * pattern.titles.length)];
+                    }
+                }
+
+                const words = text.split(' ').filter(word => word.length > 3).slice(0, 3);
+                if (words.length >= 2) {
+                    const capitalizedWords = words.map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    );
+                    return diagramType === 'classDiagram' ? 
+                        `Diagrama de ${capitalizedWords.join(' ')}` : 
+                        `Proceso de ${capitalizedWords.join(' ')}`;
+                }
+
+                const defaultTitles = {
+                    flowchart: ['Diagrama de Flujo', 'Proceso del Sistema', 'Flujo de Trabajo'],
+                    classDiagram: ['Diagrama de Clases', 'Estructura de Objetos', 'Modelo UML']
+                };
+
+                const titlesForType = defaultTitles[diagramType] || defaultTitles.flowchart;
+                return titlesForType[Math.floor(Math.random() * titlesForType.length)];
+            };
+
+            const renderDiagram = async (code) => {
+                if (!diagramRef.current) return;
+                
+                try {
+                    diagramRef.current.innerHTML = '';
+                    const diagramId = `diagram-${Date.now()}`;
+                    const { svg } = await mermaid.render(diagramId, code);
+                    diagramRef.current.innerHTML = svg;
+                    
+                    const svgElement = diagramRef.current.querySelector('svg');
+                    if (svgElement) {
+                        svgElement.style.maxWidth = '100%';
+                        svgElement.style.height = 'auto';
+                        svgElement.style.background = 'transparent';
+                    }
+                } catch (err) {
+                    console.error('Error rendering diagram:', err);
+                    diagramRef.current.innerHTML = '<p style="color: red; text-align: center;">Error al renderizar el diagrama</p>';
+                }
+            };
+
+            const handleGenerate = async () => {
+                if (!inputText.trim()) {
+                    setError('Por favor, introduce algún texto');
+                    return;
+                }
+
+                setIsProcessing(true);
+                setError(null);
+
+                try {
+                    // Simular procesamiento IA
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    const mermaidCode = generateMermaidCode(inputText);
+                    const diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
+                    const diagramTitle = generateDiagramTitle(inputText, diagramType);
+                    
+                    const newDiagram = {
+                        id: Date.now().toString(),
+                        code: mermaidCode,
+                        type: diagramType,
+                        title: diagramTitle,
+                        createdAt: new Date()
+                    };
+                    
+                    setDiagram(newDiagram);
+                    
+                    // Renderizar el diagrama
+                    setTimeout(() => renderDiagram(mermaidCode), 100);
+                } catch (err) {
+                    setError('Error al generar el diagrama');
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const handleClear = () => {
+                setDiagram(null);
+                setInputText('');
+                setError(null);
+                setIsModalOpen(false);
+            };
+
+            const openModal = () => {
+                setIsModalOpen(true);
+                setModalZoom(100);
+                setModalPosition({ x: 0, y: 0 });
+                setTimeout(() => renderModalDiagram(diagram.code), 100);
+            };
+
+            const closeModal = () => {
+                setIsModalOpen(false);
+            };
+
+            const renderModalDiagram = async (code) => {
+                if (!modalDiagramRef.current) return;
+                
+                try {
+                    modalDiagramRef.current.innerHTML = '';
+                    const diagramId = `modal-diagram-${Date.now()}`;
+                    const { svg } = await mermaid.render(diagramId, code);
+                    modalDiagramRef.current.innerHTML = svg;
+                    
+                    const svgElement = modalDiagramRef.current.querySelector('svg');
+                    if (svgElement) {
+                        svgElement.style.maxWidth = 'none';
+                        svgElement.style.maxHeight = 'none';
+                        svgElement.style.width = '100%';
+                        svgElement.style.height = 'auto';
+                    }
+                } catch (err) {
+                    modalDiagramRef.current.innerHTML = '<p style="color: red; text-align: center;">Error al renderizar el diagrama</p>';
+                }
+            };
+
+            const handleModalMouseDown = (e) => {
+                setIsDragging(true);
+                setDragStart({
+                    x: e.clientX - modalPosition.x,
+                    y: e.clientY - modalPosition.y
+                });
+            };
+
+            const handleModalMouseMove = (e) => {
+                if (!isDragging) return;
+                setModalPosition({
+                    x: e.clientX - dragStart.x,
+                    y: e.clientY - dragStart.y
+                });
+            };
+
+            const handleModalMouseUp = () => {
+                setIsDragging(false);
+            };
+
+            const handleModalZoomIn = () => {
+                setModalZoom(prev => Math.min(prev + 25, 300));
+            };
+
+            const handleModalZoomOut = () => {
+                setModalZoom(prev => Math.max(prev - 25, 25));
+            };
+
+            const resetModalView = () => {
+                setModalZoom(100);
+                setModalPosition({ x: 0, y: 0 });
+            };
+
+            const downloadSVG = () => {
+                const svgElement = modalDiagramRef.current?.querySelector('svg');
+                if (svgElement) {
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const svgUrl = URL.createObjectURL(svgBlob);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = svgUrl;
+                    downloadLink.download = `${diagram.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.svg`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(svgUrl);
+                }
+            };
+
+            return (
+                <div>
+                    <header className="header">
+                        <div className="container">
+                            <div className="header-content">
+                                <h1 className="title">De Texto a Diagrama</h1>
+                                <span className="subtitle">Powered by AI</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="main">
+                        <div className="container">
+                            <div className="grid">
+                                <div>
+                                    <div className="card">
+                                        <h2 className="card-title">Entrada de Datos</h2>
+                                        
+                                        <div className="input-selector">
+                                            {['text', 'voice', 'audio'].map(type => (
+                                                <button
+                                                    key={type}
+                                                    onClick={() => setInputType(type)}
+                                                    className={`selector-btn ${inputType === type ? 'active' : ''}`}
+                                                >
+                                                    {type === 'text' && 'Texto'}
+                                                    {type === 'voice' && 'Voz'}
+                                                    {type === 'audio' && 'Audio'}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {inputType === 'text' && (
+                                            <textarea
+                                                className="textarea"
+                                                rows="6"
+                                                placeholder="Escribe aquí el texto que quieres convertir en diagrama..."
+                                                value={inputText}
+                                                onChange={(e) => setInputText(e.target.value)}
+                                            />
+                                        )}
+
+                                        {inputType !== 'text' && (
+                                            <div className="placeholder-area">
+                                                <div className="placeholder-icon">
+                                                    {inputType === 'voice' ? '🎤' : '📁'}
+                                                </div>
+                                                <p>{inputType === 'voice' ? 'Grabadora de voz' : 'Subir archivo de audio'}</p>
+                                                <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>Próximamente...</p>
+                                            </div>
+                                        )}
+
+                                        <button
+                                            onClick={handleGenerate}
+                                            disabled={isProcessing || !inputText.trim()}
+                                            className="btn-primary"
+                                        >
+                                            {isProcessing ? (
+                                                <div className="loading">
+                                                    <div className="spinner"></div>
+                                                    Generando...
+                                                </div>
+                                            ) : (
+                                                'Generar Diagrama'
+                                            )}
+                                        </button>
+
+                                        {error && (
+                                            <div style={{
+                                                marginTop: '1rem',
+                                                padding: '0.75rem',
+                                                backgroundColor: '#fef2f2',
+                                                border: '1px solid #fecaca',
+                                                color: '#dc2626',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '0.875rem'
+                                            }}>
+                                                {error}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="card">
+                                        <h2 className="card-title">Diagrama Generado</h2>
+                                        
+                                        {diagram ? (
+                                            <div>
+                                                <div className="success-message">
+                                                    ✅ Diagrama generado exitosamente
+                                                </div>
+                                                
+                                                <div 
+                                                    className="diagram-area"
+                                                    style={{
+                                                        transform: `scale(${zoomLevel / 100})`,
+                                                        transformOrigin: 'top left',
+                                                        transition: 'transform 0.2s ease',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={openModal}
+                                                    title="Clic para ampliar en pantalla completa"
+                                                >
+                                                    <div ref={diagramRef} style={{minHeight: '200px'}}>
+                                                        <div style={{textAlign: 'center', color: '#6b7280', padding: '2rem'}}>
+                                                            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>⏳</div>
+                                                            <p>Renderizando diagrama...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="generated-code">
+{diagram.code}
+                                                </div>
+                                                
+                                                <div className="controls" style={{marginTop: '1rem'}}>
+                                                    <div className="controls-left">
+                                                        <button 
+                                                            onClick={() => setZoomLevel(prev => Math.min(prev + 25, 200))}
+                                                            className="btn-secondary"
+                                                            disabled={zoomLevel >= 200}
+                                                        >
+                                                            Zoom +
+                                                        </button>
+                                                        <span style={{fontSize: '0.75rem', color: '#6b7280', padding: '0 0.5rem'}}>
+                                                            {zoomLevel}%
+                                                        </span>
+                                                        <button 
+                                                            onClick={() => setZoomLevel(prev => Math.max(prev - 25, 25))}
+                                                            className="btn-secondary"
+                                                            disabled={zoomLevel <= 25}
+                                                        >
+                                                            Zoom -
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => setZoomLevel(100)}
+                                                            className="btn-secondary"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                    </div>
+                                                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const svgElement = diagramRef.current?.querySelector('svg');
+                                                                if (svgElement) {
+                                                                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                                                                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                                                                    const svgUrl = URL.createObjectURL(svgBlob);
+                                                                    const downloadLink = document.createElement('a');
+                                                                    downloadLink.href = svgUrl;
+                                                                    downloadLink.download = `diagrama-${diagram.id}.svg`;
+                                                                    document.body.appendChild(downloadLink);
+                                                                    downloadLink.click();
+                                                                    document.body.removeChild(downloadLink);
+                                                                    URL.revokeObjectURL(svgUrl);
+                                                                }
+                                                            }}
+                                                            className="btn-secondary"
+                                                        >
+                                                            Exportar SVG
+                                                        </button>
+                                                        <button 
+                                                            onClick={handleClear}
+                                                            className="btn-secondary"
+                                                        >
+                                                            Limpiar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="placeholder-area">
+                                                <div className="placeholder-icon">📊</div>
+                                                <p>Aquí aparecerá tu diagrama</p>
+                                                <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>
+                                                    Genera un diagrama para visualizarlo
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* Modal */}
+                    {diagram && (
+                        <div 
+                            className={`modal-overlay ${isModalOpen ? 'open' : ''}`}
+                            onClick={closeModal}
+                        >
+                            <div 
+                                className="modal-container"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Header */}
+                                <div className="modal-header">
+                                    <h2 className="modal-title">{diagram.title}</h2>
+                                    <div className="modal-buttons">
+                                        <button 
+                                            className="modal-btn"
+                                            onClick={closeModal}
+                                            title="Minimizar"
+                                        >
+                                            <span>−</span>
+                                        </button>
+                                        <button 
+                                            className="modal-btn"
+                                            onClick={downloadSVG}
+                                            title="Descargar SVG"
+                                        >
+                                            <span>↓</span>
+                                        </button>
+                                        <button 
+                                            className="modal-btn"
+                                            onClick={closeModal}
+                                            title="Cerrar"
+                                        >
+                                            <span>×</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div 
+                                    className={`modal-content ${isDragging ? 'dragging' : ''}`}
+                                    onMouseDown={handleModalMouseDown}
+                                    onMouseMove={handleModalMouseMove}
+                                    onMouseUp={handleModalMouseUp}
+                                    onMouseLeave={handleModalMouseUp}
+                                >
+                                    <div 
+                                        className="modal-diagram"
+                                        ref={modalDiagramRef}
+                                        style={{
+                                            transform: `translate(${modalPosition.x}px, ${modalPosition.y}px) scale(${modalZoom / 100})`,
+                                            transformOrigin: 'center center'
+                                        }}
+                                    >
+                                        <div style={{textAlign: 'center', color: '#6b7280', padding: '2rem'}}>
+                                            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>⏳</div>
+                                            <p>Renderizando diagrama...</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Zoom Controls */}
+                                    <div className="modal-zoom-controls">
+                                        <button 
+                                            className="zoom-btn"
+                                            onClick={handleModalZoomOut}
+                                            disabled={modalZoom <= 25}
+                                            title="Zoom Out"
+                                        >
+                                            <span>−</span>
+                                        </button>
+                                        <span className="zoom-display">{modalZoom}%</span>
+                                        <button 
+                                            className="zoom-btn"
+                                            onClick={handleModalZoomIn}
+                                            disabled={modalZoom >= 300}
+                                            title="Zoom In"
+                                        >
+                                            <span>+</span>
+                                        </button>
+                                        <div style={{width: '1px', height: '20px', background: '#e5e7eb', margin: '0 4px'}}></div>
+                                        <button 
+                                            className="zoom-btn"
+                                            onClick={resetModalView}
+                                            title="Reset"
+                                            style={{fontSize: '10px'}}
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
