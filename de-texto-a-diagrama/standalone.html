@@ -11,6 +11,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --accent-primary: #4ecdc4;
+            --accent-secondary: #10A37F;
+            --accent-hover: #3db3ab;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --info: #60a5fa;
+            --spacing-unit: 8px;
+            --border-radius: 8px;
+            --border-radius-card: 12px;
+            --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,9 +40,9 @@
         }
         
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: #f9fafb;
-            color: #111827;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
         }
         
@@ -31,9 +53,9 @@
         }
         
         .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid #404040;
+            box-shadow: var(--shadow-subtle);
             padding: 1rem 0;
         }
         
@@ -44,14 +66,16 @@
         }
         
         .title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #111827;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
         }
         
         .subtitle {
-            font-size: 0.875rem;
-            color: #6b7280;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
         
         .main {
@@ -71,18 +95,25 @@
         }
         
         .card {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
-            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #404040;
+            padding: 24px;
+            transition: all var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-elevated);
+            border-color: var(--accent-primary);
         }
         
         .card-title {
-            font-size: 1.125rem;
-            font-weight: 500;
-            color: #111827;
-            margin-bottom: 1rem;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            line-height: 1.3;
         }
         
         .input-selector {
@@ -92,52 +123,71 @@
         }
         
         .selector-btn {
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
             font-weight: 500;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--transition);
+            line-height: 1.5;
         }
         
         .selector-btn.active {
-            background-color: #3b82f6;
-            color: white;
+            background-color: var(--accent-primary);
+            color: var(--text-primary);
         }
         
         .selector-btn:not(.active) {
-            background-color: #e5e7eb;
-            color: #374151;
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
         }
         
         .selector-btn:not(.active):hover {
-            background-color: #d1d5db;
+            background-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: scale(1.02);
+        }
+        
+        .selector-btn.active:hover {
+            transform: scale(1.02);
+        }
+        
+        .selector-btn:active {
+            transform: scale(0.98);
         }
         
         .textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            border: 1px solid #404040;
+            border-radius: 6px;
             font-family: inherit;
-            font-size: 0.875rem;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-primary);
             resize: vertical;
             outline: none;
             margin-bottom: 1rem;
+            transition: all var(--transition);
         }
         
         .textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+        }
+        
+        .textarea::placeholder {
+            color: var(--text-secondary);
         }
         
         .placeholder-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 0.5rem;
+            border: 2px dashed #404040;
+            border-radius: var(--border-radius);
             padding: 2rem;
             text-align: center;
-            color: #6b7280;
+            color: var(--text-secondary);
             margin-bottom: 1rem;
         }
         
@@ -145,24 +195,30 @@
             width: 3rem;
             height: 3rem;
             margin: 0 auto 1rem;
-            color: #9ca3af;
+            color: var(--text-tertiary);
         }
         
         .btn-primary {
-            background-color: #3b82f6;
-            color: white;
+            background-color: var(--accent-primary);
+            color: var(--text-primary);
             font-weight: 500;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
             border: none;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all var(--transition);
             width: 100%;
-            font-size: 0.875rem;
+            font-size: 16px;
+            line-height: 1.6;
         }
         
         .btn-primary:hover:not(:disabled) {
-            background-color: #2563eb;
+            background-color: var(--accent-hover);
+            transform: scale(1.02);
+        }
+        
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.98);
         }
         
         .btn-primary:disabled {
@@ -171,19 +227,26 @@
         }
         
         .btn-secondary {
-            background-color: #e5e7eb;
-            color: #374151;
+            background-color: transparent;
+            color: var(--accent-primary);
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--accent-primary);
             cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 0.75rem;
+            transition: all var(--transition);
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         .btn-secondary:hover {
-            background-color: #d1d5db;
+            background-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: scale(1.02);
+        }
+        
+        .btn-secondary:active {
+            transform: scale(0.98);
         }
         
         .loading {
@@ -207,10 +270,10 @@
         }
         
         .diagram-area {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
+            border: 1px solid #404040;
+            border-radius: var(--border-radius);
             padding: 1rem;
-            background: white;
+            background: var(--bg-secondary);
             min-height: 16rem;
             display: flex;
             align-items: center;
@@ -229,14 +292,15 @@
             gap: 0.5rem;
         }
         
-        
         .generated-code {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background-color: var(--bg-tertiary);
+            border: 1px solid #404040;
             padding: 1rem;
-            border-radius: 0.5rem;
+            border-radius: var(--border-radius);
             font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.75rem;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-secondary);
             overflow-x: auto;
             white-space: pre;
         }
@@ -266,7 +330,8 @@
             margin: 20px;
             width: calc(100vw - 40px);
             height: calc(100vh - 40px);
-            background: white;
+            background: var(--bg-secondary);
+            border: 1px solid #404040;
             border-radius: 20px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
             position: relative;
@@ -280,17 +345,19 @@
             align-items: center;
             padding: 1.5rem;
             border-radius: 20px 20px 0 0;
-            background: #ffffff;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid #404040;
         }
 
         .modal-title {
-            font-size: 1.25rem;
+            font-size: 20px;
             font-weight: 600;
-            color: #111827;
+            color: var(--text-primary);
             max-width: 70%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            line-height: 1.4;
         }
 
         .modal-buttons {
@@ -304,23 +371,23 @@
             border: none;
             background: transparent;
             border-radius: 50%;
-            color: #000000;
+            color: var(--text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all var(--transition);
             font-weight: 600;
         }
 
         .modal-btn:hover {
-            background: #f3f4f6;
+            background: var(--bg-tertiary);
         }
 
         .modal-content {
             flex: 1;
             overflow: hidden;
-            background: #ffffff;
+            background: var(--bg-primary);
             position: relative;
             cursor: grab;
             border-bottom-left-radius: 20px;
@@ -354,18 +421,18 @@
             height: 40px;
             border: none;
             background: transparent;
-            color: #000000;
+            color: var(--text-primary);
             cursor: pointer;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all var(--transition);
             font-weight: 600;
         }
 
         .zoom-btn:hover:not(:disabled) {
-            background: #f3f4f6;
+            background: var(--bg-tertiary);
         }
 
         .zoom-btn:disabled {
@@ -386,6 +453,72 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .error-display {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            background-color: rgba(248, 113, 113, 0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .success-notification {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+        }
+
+        .success-content {
+            background-color: var(--bg-secondary);
+            border: 1px solid #404040;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-elevated);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .clear-btn {
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color var(--transition);
+            line-height: 1.5;
+        }
+
+        .clear-btn:hover {
+            color: var(--accent-primary);
+        }
+
+        .mermaid-code-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color var(--transition);
+            line-height: 1.5;
+        }
+
+        .mermaid-code-toggle:hover {
+            color: var(--accent-primary);
         }
     </style>
 </head>
@@ -413,7 +546,7 @@
             const modalDiagramRef = useRef(null);
 
             useEffect(() => {
-                // Configurar Mermaid
+                // Configurar Mermaid con tema oscuro
                 mermaid.initialize({
                     startOnLoad: false,
                     theme: 'base',
@@ -422,15 +555,38 @@
                     fontSize: 14,
                     darkMode: false,
                     themeVariables: {
-                        primaryColor: '#f0f9ff',
-                        primaryTextColor: '#1f2937',
-                        primaryBorderColor: '#6b7280',
-                        lineColor: '#000000',
-                        secondaryColor: '#f0f9ff',
-                        tertiaryColor: '#f0f9ff',
-                        background: '#ffffff',
-                        mainBkg: '#ffffff',
-                        secondBkg: '#ffffff',
+                        primaryColor: '#4ecdc4',
+                        primaryTextColor: '#ffffff',
+                        primaryBorderColor: '#3db3ab',
+                        lineColor: '#4ecdc4',
+                        secondaryColor: '#2d2d2d',
+                        tertiaryColor: '#3a3a3a',
+                        background: '#2d2d2d',
+                        mainBkg: '#2d2d2d',
+                        secondBkg: '#3a3a3a',
+                        nodeBkg: '#2d2d2d',
+                        nodeBorder: '#4ecdc4',
+                        clusterBkg: '#3a3a3a',
+                        clusterBorder: '#4ecdc4',
+                        defaultLinkColor: '#4ecdc4',
+                        titleColor: '#ffffff',
+                        edgeLabelBackground: '#2d2d2d',
+                        actorBorder: '#4ecdc4',
+                        actorBkg: '#2d2d2d',
+                        actorTextColor: '#ffffff',
+                        actorLineColor: '#4ecdc4',
+                        signalColor: '#ffffff',
+                        signalTextColor: '#ffffff',
+                        labelBoxBkgColor: '#2d2d2d',
+                        labelBoxBorderColor: '#4ecdc4',
+                        labelTextColor: '#ffffff',
+                        loopTextColor: '#ffffff',
+                        noteBorderColor: '#4ecdc4',
+                        noteBkgColor: '#2d2d2d',
+                        noteTextColor: '#ffffff',
+                        activationBorderColor: '#4ecdc4',
+                        activationBkgColor: '#3a3a3a',
+                        sequenceNumberColor: '#ffffff',
                     },
                     flowchart: {
                         useMaxWidth: true,
@@ -538,87 +694,9 @@
     C --> D[Fin]`;
             };
 
-            // Estilos de nodos por categorías basados en el diagrama de referencia
-            const nodeStyles = {
-                process: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px',
-                input: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px',
-                ai: 'fill:#ddd6fe,stroke:#7c3aed,stroke-width:2px',
-                generation: 'fill:#f0fdf4,stroke:#16a34a,stroke-width:2px',
-                decision: 'fill:#fff7ed,stroke:#ea580c,stroke-width:2px',
-                action: 'fill:#fef3c7,stroke:#d97706,stroke-width:2px',
-                storage: 'fill:#ecfdf5,stroke:#059669,stroke-width:2px',
-                management: 'fill:#fef7cd,stroke:#ca8a04,stroke-width:2px',
-                search: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px'
-            };
-
             const enhanceDiagramWithStyles = (code) => {
-                // Detectar si el código ya tiene configuración de tema
-                if (code.includes('config:') || code.includes('theme:')) {
-                    return code;
-                }
-
-                // Agregar configuración de tema al inicio del diagrama
-                const themeConfig = `---
-config:
-  theme: base
-  themeVariables:
-    primaryColor: '#f0f9ff'
-    primaryTextColor: '#1f2937'
-    primaryBorderColor: '#6b7280'
-    lineColor: '#000000'
-    secondaryColor: '#f0f9ff'
-    tertiaryColor: '#f0f9ff'
-    background: '#ffffff'
-    mainBkg: '#ffffff'
-    secondBkg: '#ffffff'
-  layout: dagre
----
-`;
-
-                // Detectar el tipo de diagrama y aplicar estilos automáticamente
-                let enhancedCode = code;
-                
-                if (code.includes('flowchart') || code.includes('graph')) {
-                    // Aplicar estilos automáticos basados en palabras clave
-                    const lines = code.split('\n');
-                    const styleLines = [];
-                    
-                    lines.forEach(line => {
-                        const match = line.match(/(\w+)\[/);
-                        if (match) {
-                            const nodeId = match[1];
-                            const text = line.toLowerCase();
-                            
-                            let style = nodeStyles.action; // default
-                            
-                            if (text.includes('inicio') || text.includes('start')) {
-                                style = nodeStyles.process;
-                            } else if (text.includes('grabar') || text.includes('input') || text.includes('entrada')) {
-                                style = nodeStyles.input;
-                            } else if (text.includes('transcribir') || text.includes('ai') || text.includes('modelo')) {
-                                style = nodeStyles.ai;
-                            } else if (text.includes('generar') || text.includes('crear') || text.includes('procesar')) {
-                                style = nodeStyles.generation;
-                            } else if (text.includes('seleccionar') || text.includes('elegir') || text.includes('¿')) {
-                                style = nodeStyles.decision;
-                            } else if (text.includes('guardar') || text.includes('base de datos') || text.includes('almacenar')) {
-                                style = nodeStyles.storage;
-                            } else if (text.includes('gestión') || text.includes('administrar') || text.includes('configurar')) {
-                                style = nodeStyles.management;
-                            } else if (text.includes('buscar') || text.includes('consultar') || text.includes('búsqueda')) {
-                                style = nodeStyles.search;
-                            }
-                            
-                            styleLines.push(`    style ${nodeId} ${style}`);
-                        }
-                    });
-                    
-                    if (styleLines.length > 0) {
-                        enhancedCode += '\n' + styleLines.join('\n');
-                    }
-                }
-                
-                return themeConfig + enhancedCode;
+                // El tema ya está configurado en Mermaid initialize
+                return code;
             };
 
             const generateDiagramTitle = (inputText, diagramType) => {
@@ -690,7 +768,7 @@ config:
                     }
                 } catch (err) {
                     console.error('Error rendering diagram:', err);
-                    diagramRef.current.innerHTML = '<p style="color: red; text-align: center;">Error al renderizar el diagrama</p>';
+                    diagramRef.current.innerHTML = `<p style="color: var(--error); text-align: center;">Error al renderizar el diagrama</p>`;
                 }
             };
 
@@ -792,7 +870,7 @@ config:
                         }, 100);
                     }
                 } catch (err) {
-                    modalDiagramRef.current.innerHTML = '<p style="color: red; text-align: center;">Error al renderizar el diagrama</p>';
+                    modalDiagramRef.current.innerHTML = `<p style="color: var(--error); text-align: center;">Error al renderizar el diagrama</p>`;
                 }
             };
 
@@ -905,20 +983,10 @@ config:
                                             <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem'}}>
                                                 <button
                                                     onClick={handleClear}
-                                                    style={{
-                                                        fontSize: '0.875rem',
-                                                        color: '#6b7280',
-                                                        background: 'none',
-                                                        border: 'none',
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.25rem',
-                                                        transition: 'color 0.2s'
-                                                    }}
+                                                    className="clear-btn"
                                                     title="Limpiar texto"
                                                 >
-                                                    <i className="fas fa-times" style={{fontSize: '0.875rem'}}></i>
+                                                    <i className="fas fa-times"></i>
                                                     <span>Limpiar</span>
                                                 </button>
                                             </div>
@@ -940,7 +1008,7 @@ config:
                                                     <i className={`fas ${inputType === 'voice' ? 'fa-microphone' : 'fa-cloud-upload-alt'}`} style={{fontSize: '3rem'}}></i>
                                                 </div>
                                                 <p>{inputType === 'voice' ? 'Grabadora de voz' : 'Subir archivo de audio'}</p>
-                                                <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>Próximamente...</p>
+                                                <p style={{fontSize: '14px', marginTop: '8px', lineHeight: '1.5'}}>Próximamente...</p>
                                             </div>
                                         )}
 
@@ -960,15 +1028,7 @@ config:
                                         </button>
 
                                         {error && (
-                                            <div style={{
-                                                marginTop: '1rem',
-                                                padding: '0.75rem',
-                                                backgroundColor: '#fef2f2',
-                                                border: '1px solid #fecaca',
-                                                color: '#dc2626',
-                                                borderRadius: '0.5rem',
-                                                fontSize: '0.875rem'
-                                            }}>
+                                            <div className="error-display">
                                                 {error}
                                             </div>
                                         )}
@@ -993,7 +1053,7 @@ config:
                                                     title="Clic para ampliar en pantalla completa"
                                                 >
                                                     <div ref={diagramRef} style={{minHeight: '200px'}}>
-                                                        <div style={{textAlign: 'center', color: '#6b7280', padding: '2rem'}}>
+                                                        <div style={{textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem'}}>
                                                             <i className="fas fa-spinner fa-spin" style={{fontSize: '2rem', marginBottom: '1rem'}}></i>
                                                             <p>Renderizando diagrama...</p>
                                                         </div>
@@ -1001,39 +1061,18 @@ config:
                                                 </div>
                                                 
                                                 {/* Mermaid Code Section - Collapsible */}
-                                                <div style={{marginTop: '1rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
+                                                <div style={{marginTop: '1rem', borderTop: '1px solid #404040', paddingTop: '1rem'}}>
                                                     <button
                                                         onClick={() => setShowMermaidCode(!showMermaidCode)}
-                                                        style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                            width: '100%',
-                                                            textAlign: 'left',
-                                                            fontSize: '0.875rem',
-                                                            color: '#6b7280',
-                                                            background: 'none',
-                                                            border: 'none',
-                                                            cursor: 'pointer',
-                                                            transition: 'color 0.2s'
-                                                        }}
+                                                        className="mermaid-code-toggle"
                                                     >
                                                         <span>Ver código Mermaid</span>
-                                                        <i className={`fas fa-chevron-${showMermaidCode ? 'up' : 'down'}`} style={{fontSize: '0.75rem'}}></i>
+                                                        <i className={`fas fa-chevron-${showMermaidCode ? 'up' : 'down'}`} style={{fontSize: '12px'}}></i>
                                                     </button>
                                                     
                                                     {showMermaidCode && (
-                                                        <div style={{marginTop: '0.75rem'}}>
-                                                            <pre style={{
-                                                                backgroundColor: '#f9fafb',
-                                                                border: '1px solid #e5e7eb',
-                                                                borderRadius: '0.5rem',
-                                                                padding: '0.75rem',
-                                                                fontSize: '0.75rem',
-                                                                color: '#374151',
-                                                                overflowX: 'auto',
-                                                                margin: 0
-                                                            }}>
+                                                        <div style={{marginTop: '12px'}}>
+                                                            <pre className="generated-code">
                                                                 <code>{diagram.code}</code>
                                                             </pre>
                                                         </div>
@@ -1046,7 +1085,7 @@ config:
                                                     <i className="fas fa-project-diagram" style={{fontSize: '3rem'}}></i>
                                                 </div>
                                                 <p>Aquí aparecerá tu diagrama</p>
-                                                <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>
+                                                <p style={{fontSize: '14px', marginTop: '8px', lineHeight: '1.5'}}>
                                                     Genera un diagrama para visualizarlo
                                                 </p>
                                             </div>
@@ -1105,7 +1144,7 @@ config:
                                             transformOrigin: 'center center'
                                         }}
                                     >
-                                        <div style={{textAlign: 'center', color: '#6b7280', padding: '2rem'}}>
+                                        <div style={{textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem'}}>
                                             <div style={{fontSize: '2rem', marginBottom: '1rem'}}>⏳</div>
                                             <p>Renderizando diagrama...</p>
                                         </div>
@@ -1137,25 +1176,10 @@ config:
                     
                     {/* Success Notification */}
                     {showSuccess && (
-                        <div style={{
-                            position: 'fixed',
-                            bottom: '2rem',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 50
-                        }}>
-                            <div style={{
-                                backgroundColor: 'white',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: '0.5rem',
-                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                                padding: '1rem 1.5rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.75rem'
-                            }} className="animate-fade-in">
-                                <i className="fas fa-check-circle" style={{color: '#10b981', fontSize: '1.25rem'}}></i>
-                                <span style={{color: '#1f2937', fontWeight: 500}}>Diagrama generado exitosamente</span>
+                        <div className="success-notification">
+                            <div className="success-content animate-fade-in">
+                                <i className="fas fa-check-circle" style={{color: 'var(--success)', fontSize: '20px'}}></i>
+                                <span style={{color: 'var(--text-primary)', fontWeight: 500}}>Diagrama generado exitosamente</span>
                             </div>
                         </div>
                     )}

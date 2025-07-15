@@ -183,7 +183,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
       
       {/* Modal */}
       <div 
-        className="relative bg-white rounded-[20px] shadow-2xl transition-all duration-300 overflow-hidden"
+        className="relative bg-bg-secondary rounded-[20px] shadow-2xl transition-all duration-300 overflow-hidden border border-gray-600"
         style={{
           margin: '20px',
           width: 'calc(100vw - 40px)',
@@ -194,8 +194,8 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-white rounded-t-[20px]">
-          <h2 className="text-xl font-semibold text-gray-900 truncate max-w-[70%]">
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-bg-secondary rounded-t-[20px] border-b border-gray-600">
+          <h2 className="text-xl font-semibold text-text-primary truncate max-w-[70%]">
             {diagramTitle}
           </h2>
           
@@ -203,7 +203,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
             {/* Download button */}
             <button
               onClick={handleDownload}
-              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-all duration-200"
+              className="w-10 h-10 flex items-center justify-center text-text-primary hover:bg-bg-tertiary rounded-full transition-all duration-200"
               title="Descargar SVG"
             >
               <i className="fas fa-download text-lg font-semibold"></i>
@@ -212,7 +212,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
             {/* Close button */}
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-all duration-200"
+              className="w-10 h-10 flex items-center justify-center text-text-primary hover:bg-bg-tertiary rounded-full transition-all duration-200"
               title="Cerrar"
             >
               <i className="fas fa-times text-lg font-semibold"></i>
@@ -223,7 +223,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         {/* Diagram Container */}
         <div 
           ref={containerRef}
-          className="absolute top-[70px] left-0 right-0 bottom-[80px] overflow-hidden bg-white rounded-b-[20px]"
+          className="absolute top-[70px] left-0 right-0 bottom-[80px] overflow-hidden bg-bg-primary rounded-b-[20px]"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -233,8 +233,8 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Renderizando diagrama...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary mx-auto mb-4"></div>
+                <p className="text-text-secondary">Renderizando diagrama...</p>
               </div>
             </div>
           ) : (
@@ -255,7 +255,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
             <button
               onClick={handleZoomOut}
               disabled={zoom <= 25}
-              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-10 h-10 flex items-center justify-center text-text-primary hover:bg-bg-tertiary rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               title="Zoom Out"
             >
               <i className="fas fa-minus text-lg font-semibold"></i>
@@ -264,7 +264,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
             <button
               onClick={handleZoomIn}
               disabled={zoom >= 300}
-              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-10 h-10 flex items-center justify-center text-text-primary hover:bg-bg-tertiary rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               title="Zoom In"
             >
               <i className="fas fa-plus text-lg font-semibold"></i>

@@ -25,15 +25,38 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
       fontSize: 14,
       darkMode: false,
       themeVariables: {
-        primaryColor: '#f0f9ff',
-        primaryTextColor: '#1f2937',
-        primaryBorderColor: '#6b7280',
-        lineColor: '#000000',
-        secondaryColor: '#f0f9ff',
-        tertiaryColor: '#f0f9ff',
-        background: '#ffffff',
-        mainBkg: '#ffffff',
-        secondBkg: '#ffffff',
+        primaryColor: '#4ecdc4',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#3db3ab',
+        lineColor: '#4ecdc4',
+        secondaryColor: '#2d2d2d',
+        tertiaryColor: '#3a3a3a',
+        background: '#2d2d2d',
+        mainBkg: '#2d2d2d',
+        secondBkg: '#3a3a3a',
+        nodeBkg: '#2d2d2d',
+        nodeBorder: '#4ecdc4',
+        clusterBkg: '#3a3a3a',
+        clusterBorder: '#4ecdc4',
+        defaultLinkColor: '#4ecdc4',
+        titleColor: '#ffffff',
+        edgeLabelBackground: '#2d2d2d',
+        actorBorder: '#4ecdc4',
+        actorBkg: '#2d2d2d',
+        actorTextColor: '#ffffff',
+        actorLineColor: '#4ecdc4',
+        signalColor: '#ffffff',
+        signalTextColor: '#ffffff',
+        labelBoxBkgColor: '#2d2d2d',
+        labelBoxBorderColor: '#4ecdc4',
+        labelTextColor: '#ffffff',
+        loopTextColor: '#ffffff',
+        noteBorderColor: '#4ecdc4',
+        noteBkgColor: '#2d2d2d',
+        noteTextColor: '#ffffff',
+        activationBorderColor: '#4ecdc4',
+        activationBkgColor: '#3a3a3a',
+        sequenceNumberColor: '#ffffff',
       },
       flowchart: {
         useMaxWidth: true,
@@ -103,8 +126,8 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   if (isLoading) {
     return (
       <div className={`flex items-center justify-center min-h-64 ${className}`}>
-        <div className="text-center text-gray-500">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-2"></div>
+        <div className="text-center text-text-secondary">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mx-auto mb-2"></div>
           <p>Renderizando diagrama...</p>
         </div>
       </div>
@@ -114,7 +137,7 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   if (error) {
     return (
       <div className={`flex items-center justify-center min-h-64 ${className}`}>
-        <div className="text-center text-red-500 p-4">
+        <div className="text-center text-error p-4">
           <svg className="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
@@ -128,7 +151,7 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={`overflow-auto bg-white border border-gray-200 rounded-lg p-4 ${className}`}
+      className={`overflow-auto bg-bg-secondary border border-gray-600 rounded-lg p-4 ${className}`}
       style={{ minHeight: '16rem' }}
     />
   );

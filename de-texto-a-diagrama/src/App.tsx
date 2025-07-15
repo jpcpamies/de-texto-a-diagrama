@@ -238,17 +238,17 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg-primary">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-bg-secondary shadow-subtle border-b border-gray-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-2xl font-bold text-text-primary" style={{fontSize: '32px', lineHeight: '1.2'}}>
                 De Texto a Diagrama
               </h1>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-text-secondary">
               Powered by AI
             </div>
           </div>
@@ -261,14 +261,14 @@ function App() {
           
           {/* Input Section */}
           <div className="space-y-6">
-            <div className="card p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="card">
+              <h2 className="font-semibold text-text-primary mb-6" style={{fontSize: '24px', lineHeight: '1.3'}}>
                 Entrada de Datos
               </h2>
               
               {/* Input Type Selector */}
               <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="font-normal text-text-secondary mb-2 block" style={{fontSize: '14px', lineHeight: '1.5'}}>
                   Tipo de entrada:
                 </label>
                 <div className="flex space-x-2">
@@ -276,11 +276,12 @@ function App() {
                     <button
                       key={type}
                       onClick={() => handleInputTypeChange(type)}
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      className={`px-3 py-2 rounded-md font-medium transition-all duration-default ${
                         appState.inputType === type
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          ? 'bg-accent-primary text-text-primary'
+                          : 'bg-bg-tertiary text-text-secondary hover:bg-accent-primary hover:text-text-primary'
                       }`}
+                      style={{fontSize: '14px', lineHeight: '1.5'}}
                     >
                       {type === 'text' && 'Texto'}
                       {type === 'voice' && 'Voz'}
@@ -297,7 +298,8 @@ function App() {
                   <div className="flex justify-end mb-2">
                     <button
                       onClick={handleClearDiagram}
-                      className="text-sm text-gray-500 hover:text-gray-700 transition-colors flex items-center space-x-1"
+                      className="text-text-secondary hover:text-accent-primary transition-colors flex items-center space-x-1"
+                      style={{fontSize: '14px', lineHeight: '1.5'}}
                       title="Limpiar texto"
                     >
                       <i className="fas fa-times text-sm"></i>
@@ -309,6 +311,7 @@ function App() {
                 {appState.inputType === 'text' && (
                   <textarea
                     className="input-field resize-none h-32"
+                    style={{fontSize: '16px', lineHeight: '1.6'}}
                     placeholder="Escribe aquí el texto que quieres convertir en diagrama..."
                     disabled={appState.isProcessing}
                     value={inputText}
@@ -317,21 +320,21 @@ function App() {
                 )}
                 
                 {appState.inputType === 'voice' && (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <div className="text-gray-500">
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                    <div className="text-text-secondary">
                       <i className="fas fa-microphone text-5xl mb-4"></i>
                       <p>Grabadora de voz</p>
-                      <p className="text-sm">Próximamente...</p>
+                      <p style={{fontSize: '14px', lineHeight: '1.5'}}>Próximamente...</p>
                     </div>
                   </div>
                 )}
                 
                 {appState.inputType === 'audio' && (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <div className="text-gray-500">
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                    <div className="text-text-secondary">
                       <i className="fas fa-cloud-upload-alt text-5xl mb-4"></i>
                       <p>Subir archivo de audio</p>
-                      <p className="text-sm">Próximamente...</p>
+                      <p style={{fontSize: '14px', lineHeight: '1.5'}}>Próximamente...</p>
                     </div>
                   </div>
                 )}
@@ -366,8 +369,8 @@ function App() {
 
               {/* Error Display */}
               {appState.error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{appState.error}</p>
+                <div className="mt-4 p-3 bg-red-900/20 border border-red-600 rounded-md">
+                  <p className="text-error" style={{fontSize: '14px', lineHeight: '1.5'}}>{appState.error}</p>
                 </div>
               )}
             </div>
@@ -375,8 +378,8 @@ function App() {
 
           {/* Diagram Section */}
           <div className="space-y-6">
-            <div className="card p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="card">
+              <h2 className="font-semibold text-text-primary mb-6" style={{fontSize: '24px', lineHeight: '1.3'}}>
                 Diagrama Generado
               </h2>
               
@@ -403,7 +406,8 @@ function App() {
                   <div className="mt-4 border-t border-gray-200 pt-4">
                     <button
                       onClick={() => setShowMermaidCode(!showMermaidCode)}
-                      className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                      className="flex items-center justify-between w-full text-left text-text-secondary hover:text-accent-primary transition-colors"
+                      style={{fontSize: '14px', lineHeight: '1.5'}}
                     >
                       <span>Ver código Mermaid</span>
                       <i className={`fas fa-chevron-${showMermaidCode ? 'up' : 'down'} text-xs`}></i>
@@ -411,7 +415,7 @@ function App() {
                     
                     {showMermaidCode && (
                       <div className="mt-3">
-                        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700 overflow-x-auto">
+                        <pre className="bg-bg-tertiary border border-gray-600 rounded-lg p-3 text-text-secondary overflow-x-auto" style={{fontSize: '12px', lineHeight: '1.4'}}>
                           <code>{appState.currentDiagram.code}</code>
                         </pre>
                       </div>
@@ -419,11 +423,11 @@ function App() {
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <div className="text-gray-500">
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                  <div className="text-text-secondary">
                     <i className="fas fa-project-diagram text-5xl mb-4"></i>
                     <p>Aquí aparecerá tu diagrama</p>
-                    <p className="text-sm">Genera un diagrama para visualizarlo</p>
+                    <p style={{fontSize: '14px', lineHeight: '1.5'}}>Genera un diagrama para visualizarlo</p>
                   </div>
                 </div>
               )}
@@ -446,9 +450,9 @@ function App() {
       {/* Success Notification */}
       {showSuccess && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-6 py-4 flex items-center space-x-3 animate-fade-in">
-            <i className="fas fa-check-circle text-green-500 text-xl"></i>
-            <span className="text-gray-800 font-medium">Diagrama generado exitosamente</span>
+          <div className="bg-bg-secondary border border-gray-600 rounded-lg shadow-elevated px-6 py-4 flex items-center space-x-3 animate-fade-in">
+            <i className="fas fa-check-circle text-success text-xl"></i>
+            <span className="text-text-primary font-medium">Diagrama generado exitosamente</span>
           </div>
         </div>
       )}

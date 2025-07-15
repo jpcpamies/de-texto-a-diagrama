@@ -39,7 +39,7 @@ export const DiagramControls: React.FC<DiagramControlsProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center p-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+    <div className="flex justify-between items-center p-3 bg-bg-tertiary border-t border-gray-600 rounded-b-lg">
       {/* Controles de Zoom */}
       <div className="flex items-center space-x-2">
         <button
@@ -53,7 +53,7 @@ export const DiagramControls: React.FC<DiagramControlsProps> = ({
           </svg>
         </button>
         
-        <span className="text-sm text-gray-600 min-w-12 text-center">
+        <span className="text-sm text-text-secondary min-w-12 text-center">
           {zoomLevel}%
         </span>
         
@@ -76,7 +76,7 @@ export const DiagramControls: React.FC<DiagramControlsProps> = ({
           Reset
         </button>
         
-        <div className="w-px h-4 bg-gray-300 mx-2"></div>
+        <div className="w-px h-4 bg-gray-600 mx-2"></div>
         
         <button
           onClick={onFullscreen}
