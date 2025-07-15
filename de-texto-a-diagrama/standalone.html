@@ -279,15 +279,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
             border-radius: 20px 20px 0 0;
+            background: #ffffff;
         }
 
         .modal-title {
             font-size: 1.25rem;
             font-weight: 600;
             color: #111827;
-            max-width: 60%;
+            max-width: 70%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -295,34 +295,36 @@
 
         .modal-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .modal-btn {
             width: 40px;
             height: 40px;
             border: none;
-            background: #f3f4f6;
-            border-radius: 0.5rem;
-            color: #6b7280;
+            background: transparent;
+            border-radius: 50%;
+            color: #000000;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-weight: 600;
         }
 
         .modal-btn:hover {
-            background: #e5e7eb;
-            color: #374151;
+            background: #f3f4f6;
         }
 
         .modal-content {
             flex: 1;
             overflow: hidden;
-            background: #f9fafb;
+            background: #ffffff;
             position: relative;
             cursor: grab;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
 
         .modal-content.dragging {
@@ -342,45 +344,33 @@
             position: absolute;
             bottom: 1.5rem;
             right: 1.5rem;
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem;
         }
 
         .zoom-btn {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border: none;
             background: transparent;
-            color: #6b7280;
+            color: #000000;
             cursor: pointer;
-            border-radius: 0.25rem;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-weight: 600;
         }
 
         .zoom-btn:hover:not(:disabled) {
             background: #f3f4f6;
-            color: #374151;
         }
 
         .zoom-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-        }
-
-        .zoom-display {
-            font-size: 0.75rem;
-            color: #6b7280;
-            min-width: 40px;
-            text-align: center;
         }
         
         .animate-fade-in {
@@ -413,7 +403,7 @@
             const [error, setError] = useState(null);
             const [zoomLevel, setZoomLevel] = useState(100);
             const [isModalOpen, setIsModalOpen] = useState(false);
-            const [modalZoom, setModalZoom] = useState(100);
+            const [modalZoom, setModalZoom] = useState(75);
             const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -754,7 +744,7 @@ config:
 
             const openModal = () => {
                 setIsModalOpen(true);
-                setModalZoom(100);
+                setModalZoom(75);
                 setModalPosition({ x: 0, y: 0 });
                 setTimeout(() => renderModalDiagram(diagram.code), 100);
             };
@@ -776,8 +766,30 @@ config:
                     if (svgElement) {
                         svgElement.style.maxWidth = 'none';
                         svgElement.style.maxHeight = 'none';
-                        svgElement.style.width = '100%';
+                        svgElement.style.width = 'auto';
                         svgElement.style.height = 'auto';
+                        svgElement.style.cursor = 'grab';
+                        
+                        // Calcular zoom óptimo para que se ajuste al contenedor
+                        setTimeout(() => {
+                            const modalContainer = document.querySelector('.modal-content');
+                            const svgRect = svgElement.getBoundingClientRect();
+                            
+                            if (modalContainer && svgRect) {
+                                const containerRect = modalContainer.getBoundingClientRect();
+                                
+                                // Calcular ratios para ancho y alto con márgenes
+                                const widthRatio = (containerRect.width * 0.9) / svgRect.width;
+                                const heightRatio = (containerRect.height * 0.9) / svgRect.height;
+                                
+                                // Usar el ratio menor para que quepa completo
+                                const optimalZoom = Math.min(widthRatio, heightRatio) * 100;
+                                
+                                // Establecer zoom óptimo (mínimo 25%, máximo 100%)
+                                setModalZoom(Math.min(Math.max(optimalZoom, 25), 100));
+                                setModalPosition({ x: 0, y: 0 }); // Centrar
+                            }
+                        }, 100);
                     }
                 } catch (err) {
                     modalDiagramRef.current.innerHTML = '<p style="color: red; text-align: center;">Error al renderizar el diagrama</p>';
@@ -813,8 +825,31 @@ config:
             };
 
             const resetModalView = () => {
-                setModalZoom(100);
+                // Recalcular zoom óptimo
+                const svgElement = modalDiagramRef.current?.querySelector('svg');
+                const modalContainer = document.querySelector('.modal-content');
+                
+                if (svgElement && modalContainer) {
+                    const containerRect = modalContainer.getBoundingClientRect();
+                    const svgRect = svgElement.getBoundingClientRect();
+                    
+                    if (containerRect && svgRect) {
+                        const widthRatio = (containerRect.width * 0.9) / (svgRect.width / (modalZoom / 100));
+                        const heightRatio = (containerRect.height * 0.9) / (svgRect.height / (modalZoom / 100));
+                        const optimalZoom = Math.min(widthRatio, heightRatio) * 100;
+                        
+                        setModalZoom(Math.min(Math.max(optimalZoom, 25), 100));
+                    }
+                } else {
+                    setModalZoom(75);
+                }
                 setModalPosition({ x: 0, y: 0 });
+            };
+
+            const handleModalWheel = (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -10 : 10; // Scroll down = zoom out, scroll up = zoom in
+                setModalZoom(prev => Math.min(Math.max(prev + delta, 25), 300));
             };
 
             const downloadSVG = () => {
@@ -1038,24 +1073,17 @@ config:
                                     <div className="modal-buttons">
                                         <button 
                                             className="modal-btn"
-                                            onClick={closeModal}
-                                            title="Minimizar"
-                                        >
-                                            <span>−</span>
-                                        </button>
-                                        <button 
-                                            className="modal-btn"
                                             onClick={downloadSVG}
                                             title="Descargar SVG"
                                         >
-                                            <span>↓</span>
+                                            <i className="fas fa-download" style={{fontSize: '18px'}}></i>
                                         </button>
                                         <button 
                                             className="modal-btn"
                                             onClick={closeModal}
                                             title="Cerrar"
                                         >
-                                            <span>×</span>
+                                            <i className="fas fa-times" style={{fontSize: '18px'}}></i>
                                         </button>
                                     </div>
                                 </div>
@@ -1067,6 +1095,7 @@ config:
                                     onMouseMove={handleModalMouseMove}
                                     onMouseUp={handleModalMouseUp}
                                     onMouseLeave={handleModalMouseUp}
+                                    onWheel={handleModalWheel}
                                 >
                                     <div 
                                         className="modal-diagram"
@@ -1090,25 +1119,15 @@ config:
                                             disabled={modalZoom <= 25}
                                             title="Zoom Out"
                                         >
-                                            <span>−</span>
+                                            <i className="fas fa-minus" style={{fontSize: '18px'}}></i>
                                         </button>
-                                        <span className="zoom-display">{modalZoom}%</span>
                                         <button 
                                             className="zoom-btn"
                                             onClick={handleModalZoomIn}
                                             disabled={modalZoom >= 300}
                                             title="Zoom In"
                                         >
-                                            <span>+</span>
-                                        </button>
-                                        <div style={{width: '1px', height: '20px', background: '#e5e7eb', margin: '0 4px'}}></div>
-                                        <button 
-                                            className="zoom-btn"
-                                            onClick={resetModalView}
-                                            title="Reset"
-                                            style={{fontSize: '10px'}}
-                                        >
-                                            Reset
+                                            <i className="fas fa-plus" style={{fontSize: '18px'}}></i>
                                         </button>
                                     </div>
                                 </div>

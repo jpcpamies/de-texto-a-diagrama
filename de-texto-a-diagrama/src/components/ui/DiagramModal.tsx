@@ -18,7 +18,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(75);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -28,7 +28,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
     if (!isOpen || !diagramCode) return;
     
     const renderDiagram = async () => {
-      if (!diagramRef.current) return;
+      if (!diagramRef.current || !containerRef.current) return;
       
       setIsLoading(true);
       try {
@@ -41,9 +41,32 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         if (svgElement) {
           svgElement.style.maxWidth = 'none';
           svgElement.style.maxHeight = 'none';
-          svgElement.style.width = '100%';
+          svgElement.style.width = 'auto';
           svgElement.style.height = 'auto';
           svgElement.style.cursor = 'grab';
+          
+          // Calcular zoom óptimo para que se ajuste al contenedor
+          setTimeout(() => {
+            const containerRect = containerRef.current?.getBoundingClientRect();
+            const svgRect = svgElement.getBoundingClientRect();
+            
+            if (containerRect && svgRect) {
+              // Usar márgenes más generosos (70% del espacio disponible)
+              const availableWidth = containerRect.width * 0.7;
+              const availableHeight = containerRect.height * 0.7;
+              
+              // Calcular ratios
+              const widthRatio = availableWidth / svgRect.width;
+              const heightRatio = availableHeight / svgRect.height;
+              
+              // Usar el ratio menor para que quepa completo
+              const optimalZoom = Math.min(widthRatio, heightRatio) * 100;
+              
+              // Establecer zoom óptimo (mínimo 25%, máximo 90%)
+              setZoom(Math.min(Math.max(optimalZoom, 25), 90));
+              setPosition({ x: 0, y: 0 }); // Centrar
+            }
+          }, 200);
         }
       } catch (error) {
         console.error('Error rendering modal diagram:', error);
@@ -90,6 +113,12 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
     }
   };
 
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -10 : 10; // Scroll down = zoom out, scroll up = zoom in
+    setZoom(prev => Math.min(Math.max(prev + delta, 25), 300));
+  };
+
   const handleZoomIn = () => {
     setZoom(prev => Math.min(prev + 25, 300));
   };
@@ -116,7 +145,29 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
   };
 
   const resetView = () => {
-    setZoom(100);
+    // Recalcular zoom óptimo
+    const svgElement = diagramRef.current?.querySelector('svg');
+    if (svgElement && containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const svgRect = svgElement.getBoundingClientRect();
+      
+      if (containerRect && svgRect) {
+        // Obtener dimensiones reales del SVG
+        const realSvgWidth = svgRect.width / (zoom / 100);
+        const realSvgHeight = svgRect.height / (zoom / 100);
+        
+        const availableWidth = containerRect.width * 0.7;
+        const availableHeight = containerRect.height * 0.7;
+        
+        const widthRatio = availableWidth / realSvgWidth;
+        const heightRatio = availableHeight / realSvgHeight;
+        const optimalZoom = Math.min(widthRatio, heightRatio) * 100;
+        
+        setZoom(Math.min(Math.max(optimalZoom, 25), 90));
+      }
+    } else {
+      setZoom(60);
+    }
     setPosition({ x: 0, y: 0 });
   };
 
@@ -144,27 +195,27 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
       >
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-white rounded-t-[20px]">
-          <h2 className="text-xl font-semibold text-gray-900 truncate max-w-[60%]">
+          <h2 className="text-xl font-semibold text-gray-900 truncate max-w-[70%]">
             {diagramTitle}
           </h2>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             {/* Download button */}
             <button
               onClick={handleDownload}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-all duration-200"
               title="Descargar SVG"
             >
-              <i className="fas fa-download text-xl sm:text-2xl"></i>
+              <i className="fas fa-download text-lg font-semibold"></i>
             </button>
             
             {/* Close button */}
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-all duration-200"
               title="Cerrar"
             >
-              <i className="fas fa-times text-xl sm:text-2xl"></i>
+              <i className="fas fa-times text-lg font-semibold"></i>
             </button>
           </div>
         </div>
@@ -172,11 +223,12 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         {/* Diagram Container */}
         <div 
           ref={containerRef}
-          className="absolute top-[70px] left-0 right-0 bottom-[80px] overflow-hidden bg-white"
+          className="absolute top-[70px] left-0 right-0 bottom-[80px] overflow-hidden bg-white rounded-b-[20px]"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
         >
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
@@ -199,23 +251,23 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
 
         {/* Bottom Controls */}
         <div className="absolute bottom-0 right-0 p-6">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <button
               onClick={handleZoomOut}
               disabled={zoom <= 25}
-              className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg border border-gray-200 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               title="Zoom Out"
             >
-              <i className="fas fa-minus text-sm"></i>
+              <i className="fas fa-minus text-lg font-semibold"></i>
             </button>
             
             <button
               onClick={handleZoomIn}
               disabled={zoom >= 300}
-              className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg border border-gray-200 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-black hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               title="Zoom In"
             >
-              <i className="fas fa-plus text-sm"></i>
+              <i className="fas fa-plus text-lg font-semibold"></i>
             </button>
           </div>
         </div>
