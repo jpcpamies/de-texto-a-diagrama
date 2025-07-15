@@ -4,6 +4,7 @@ import { trackAppLoaded } from './analytics/events';
 import { DiagramRenderer, DiagramControls } from './components/diagram';
 import { DiagramModal } from './components/ui';
 import { generateCreativeTitle } from './utils/titleGenerator';
+import { enhanceDiagramWithStyles } from './services/diagram';
 import type { InputType, AppState } from './types';
 
 function App() {
@@ -151,6 +152,7 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const mermaidCode = generateMermaidCode(inputText);
+      const enhancedCode = enhanceDiagramWithStyles(mermaidCode);
       const diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
       const diagramTitle = generateCreativeTitle(inputText, diagramType);
       
@@ -159,7 +161,7 @@ function App() {
         isProcessing: false,
         currentDiagram: {
           id: crypto.randomUUID(),
-          code: mermaidCode,
+          code: enhancedCode,
           type: diagramType as any,
           title: diagramTitle,
           createdAt: new Date(),

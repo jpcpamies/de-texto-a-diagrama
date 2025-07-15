@@ -16,22 +16,29 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   const [diagramId] = useState(`diagram-${Date.now()}`);
 
   useEffect(() => {
-    // Configurar Mermaid
+    // Configurar Mermaid con el tema personalizado de alta calidad
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'default',
+      theme: 'base',
       securityLevel: 'loose',
       fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: 14,
       darkMode: false,
       themeVariables: {
-        primaryColor: '#3b82f6',
+        primaryColor: '#f0f9ff',
         primaryTextColor: '#1f2937',
-        primaryBorderColor: '#d1d5db',
-        lineColor: '#6b7280',
-        secondaryColor: '#f3f4f6',
-        tertiaryColor: '#ffffff',
+        primaryBorderColor: '#6b7280',
+        lineColor: '#000000',
+        secondaryColor: '#f0f9ff',
+        tertiaryColor: '#f0f9ff',
         background: '#ffffff',
+        mainBkg: '#ffffff',
+        secondBkg: '#ffffff',
+      },
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
       },
     });
   }, []);

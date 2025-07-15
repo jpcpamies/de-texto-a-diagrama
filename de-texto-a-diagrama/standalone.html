@@ -417,18 +417,26 @@
                 // Configurar Mermaid
                 mermaid.initialize({
                     startOnLoad: false,
-                    theme: 'default',
+                    theme: 'base',
                     securityLevel: 'loose',
                     fontFamily: 'Inter, system-ui, sans-serif',
                     fontSize: 14,
+                    darkMode: false,
                     themeVariables: {
-                        primaryColor: '#3b82f6',
+                        primaryColor: '#f0f9ff',
                         primaryTextColor: '#1f2937',
-                        primaryBorderColor: '#d1d5db',
-                        lineColor: '#6b7280',
-                        secondaryColor: '#f3f4f6',
-                        tertiaryColor: '#ffffff',
+                        primaryBorderColor: '#6b7280',
+                        lineColor: '#000000',
+                        secondaryColor: '#f0f9ff',
+                        tertiaryColor: '#f0f9ff',
                         background: '#ffffff',
+                        mainBkg: '#ffffff',
+                        secondBkg: '#ffffff',
+                    },
+                    flowchart: {
+                        useMaxWidth: true,
+                        htmlLabels: true,
+                        curve: 'basis',
                     },
                 });
             }, []);
@@ -531,6 +539,89 @@
     C --> D[Fin]`;
             };
 
+            // Estilos de nodos por categorías basados en el diagrama de referencia
+            const nodeStyles = {
+                process: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px',
+                input: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px',
+                ai: 'fill:#ddd6fe,stroke:#7c3aed,stroke-width:2px',
+                generation: 'fill:#f0fdf4,stroke:#16a34a,stroke-width:2px',
+                decision: 'fill:#fff7ed,stroke:#ea580c,stroke-width:2px',
+                action: 'fill:#fef3c7,stroke:#d97706,stroke-width:2px',
+                storage: 'fill:#ecfdf5,stroke:#059669,stroke-width:2px',
+                management: 'fill:#fef7cd,stroke:#ca8a04,stroke-width:2px',
+                search: 'fill:#e0f2fe,stroke:#0284c7,stroke-width:2px'
+            };
+
+            const enhanceDiagramWithStyles = (code) => {
+                // Detectar si el código ya tiene configuración de tema
+                if (code.includes('config:') || code.includes('theme:')) {
+                    return code;
+                }
+
+                // Agregar configuración de tema al inicio del diagrama
+                const themeConfig = `---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: '#f0f9ff'
+    primaryTextColor: '#1f2937'
+    primaryBorderColor: '#6b7280'
+    lineColor: '#000000'
+    secondaryColor: '#f0f9ff'
+    tertiaryColor: '#f0f9ff'
+    background: '#ffffff'
+    mainBkg: '#ffffff'
+    secondBkg: '#ffffff'
+  layout: dagre
+---
+`;
+
+                // Detectar el tipo de diagrama y aplicar estilos automáticamente
+                let enhancedCode = code;
+                
+                if (code.includes('flowchart') || code.includes('graph')) {
+                    // Aplicar estilos automáticos basados en palabras clave
+                    const lines = code.split('\n');
+                    const styleLines = [];
+                    
+                    lines.forEach(line => {
+                        const match = line.match(/(\w+)\[/);
+                        if (match) {
+                            const nodeId = match[1];
+                            const text = line.toLowerCase();
+                            
+                            let style = nodeStyles.action; // default
+                            
+                            if (text.includes('inicio') || text.includes('start')) {
+                                style = nodeStyles.process;
+                            } else if (text.includes('grabar') || text.includes('input') || text.includes('entrada')) {
+                                style = nodeStyles.input;
+                            } else if (text.includes('transcribir') || text.includes('ai') || text.includes('modelo')) {
+                                style = nodeStyles.ai;
+                            } else if (text.includes('generar') || text.includes('crear') || text.includes('procesar')) {
+                                style = nodeStyles.generation;
+                            } else if (text.includes('seleccionar') || text.includes('elegir') || text.includes('¿')) {
+                                style = nodeStyles.decision;
+                            } else if (text.includes('guardar') || text.includes('base de datos') || text.includes('almacenar')) {
+                                style = nodeStyles.storage;
+                            } else if (text.includes('gestión') || text.includes('administrar') || text.includes('configurar')) {
+                                style = nodeStyles.management;
+                            } else if (text.includes('buscar') || text.includes('consultar') || text.includes('búsqueda')) {
+                                style = nodeStyles.search;
+                            }
+                            
+                            styleLines.push(`    style ${nodeId} ${style}`);
+                        }
+                    });
+                    
+                    if (styleLines.length > 0) {
+                        enhancedCode += '\n' + styleLines.join('\n');
+                    }
+                }
+                
+                return themeConfig + enhancedCode;
+            };
+
             const generateDiagramTitle = (inputText, diagramType) => {
                 const text = inputText.toLowerCase().trim();
                 
@@ -618,12 +709,13 @@
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     
                     const mermaidCode = generateMermaidCode(inputText);
+                    const enhancedCode = enhanceDiagramWithStyles(mermaidCode);
                     const diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
                     const diagramTitle = generateDiagramTitle(inputText, diagramType);
                     
                     const newDiagram = {
                         id: Date.now().toString(),
-                        code: mermaidCode,
+                        code: enhancedCode,
                         type: diagramType,
                         title: diagramTitle,
                         createdAt: new Date()
@@ -632,7 +724,7 @@
                     setDiagram(newDiagram);
                     
                     // Renderizar el diagrama
-                    setTimeout(() => renderDiagram(mermaidCode), 100);
+                    setTimeout(() => renderDiagram(enhancedCode), 100);
                 } catch (err) {
                     setError('Error al generar el diagrama');
                 } finally {
