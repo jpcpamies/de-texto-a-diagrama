@@ -132,7 +132,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
       
       {/* Modal */}
       <div 
-        className="relative bg-white rounded-[20px] shadow-2xl transition-all duration-300"
+        className="relative bg-white rounded-[20px] shadow-2xl transition-all duration-300 overflow-hidden"
         style={{
           margin: '20px',
           width: 'calc(100vw - 40px)',
@@ -143,43 +143,28 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-6 bg-white rounded-t-[20px] border-b border-gray-200">
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-white rounded-t-[20px]">
           <h2 className="text-xl font-semibold text-gray-900 truncate max-w-[60%]">
             {diagramTitle}
           </h2>
           
-          <div className="flex items-center space-x-3">
-            {/* Minimize button */}
-            <button
-              onClick={onMinimize}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Minimizar"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-              </svg>
-            </button>
-            
+          <div className="flex items-center space-x-4">
             {/* Download button */}
             <button
               onClick={handleDownload}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="text-gray-500 hover:text-gray-700 transition-colors"
               title="Descargar SVG"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <i className="fas fa-download text-xl sm:text-2xl"></i>
             </button>
             
             {/* Close button */}
             <button
               onClick={onClose}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="text-gray-500 hover:text-gray-700 transition-colors"
               title="Cerrar"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <i className="fas fa-times text-xl sm:text-2xl"></i>
             </button>
           </div>
         </div>
@@ -187,7 +172,7 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
         {/* Diagram Container */}
         <div 
           ref={containerRef}
-          className="absolute top-[73px] left-0 right-0 bottom-[80px] overflow-hidden bg-gray-50"
+          className="absolute top-[70px] left-0 right-0 bottom-[80px] overflow-hidden bg-white"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -214,41 +199,23 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
 
         {/* Bottom Controls */}
         <div className="absolute bottom-0 right-0 p-6">
-          <div className="flex items-center space-x-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+          <div className="flex items-center space-x-3">
             <button
               onClick={handleZoomOut}
               disabled={zoom <= 25}
-              className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+              className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg border border-gray-200 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="Zoom Out"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-              </svg>
+              <i className="fas fa-minus text-sm"></i>
             </button>
-            
-            <span className="text-sm text-gray-600 min-w-[50px] text-center">
-              {zoom}%
-            </span>
             
             <button
               onClick={handleZoomIn}
               disabled={zoom >= 300}
-              className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+              className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg border border-gray-200 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="Zoom In"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-            
-            <div className="w-px h-6 bg-gray-300 mx-1"></div>
-            
-            <button
-              onClick={resetView}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded transition-colors text-xs"
-              title="Reset View"
-            >
-              Reset
+              <i className="fas fa-plus text-sm"></i>
             </button>
           </div>
         </div>

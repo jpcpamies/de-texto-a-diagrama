@@ -117,6 +117,31 @@ MVP de aplicación que transforma texto, voz o audio en diagramas visuales Merma
 - [x] **Standalone HTML** - Versión independiente sin dependencias del servidor
 - [x] **Build de producción** (dist/) - Optimizado para deployment
 
+## 🚀 Instrucciones de Lanzamiento
+
+### 📝 Instrucciones para Claude (Recordatorio de Comandos)
+
+**Para cargar la aplicación standalone en el navegador:**
+```bash
+open "file:///Users/jordipamies/Documents/GitHub/de-texto-a-diagrama/de-texto-a-diagrama/standalone.html"
+```
+
+**Para lanzar la versión React (servidor de desarrollo):**
+```bash
+cd "/Users/jordipamies/Documents/GitHub/de-texto-a-diagrama/de-texto-a-diagrama" && npm run dev
+```
+
+**Para hacer build de producción:**
+```bash
+cd "/Users/jordipamies/Documents/GitHub/de-texto-a-diagrama/de-texto-a-diagrama" && npm run build
+```
+
+**Notas importantes:**
+- La versión standalone funciona directamente desde el navegador sin servidor
+- La versión React requiere el servidor de desarrollo (`npm run dev`)
+- Ambas versiones están sincronizadas con las mismas funcionalidades
+- Usa la versión standalone para pruebas rápidas y demostraciones
+
 ## 🔮 Próximas Funcionalidades (Pendientes)
 
 ### 🟡 FASE 7: Integración de IA Real

@@ -19,6 +19,8 @@ function App() {
   const [inputText, setInputText] = useState('');
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showMermaidCode, setShowMermaidCode] = useState(false);
 
   useEffect(() => {
     // Initialize Google Analytics
@@ -167,6 +169,10 @@ function App() {
           createdAt: new Date(),
         },
       }));
+      
+      // Mostrar notificación de éxito
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       setAppState(prev => ({
         ...prev,
@@ -286,6 +292,20 @@ function App() {
 
               {/* Input Area */}
               <div className="mb-4">
+                {/* Clear button - only show when there's text */}
+                {inputText.trim() && (
+                  <div className="flex justify-end mb-2">
+                    <button
+                      onClick={handleClearDiagram}
+                      className="text-sm text-gray-500 hover:text-gray-700 transition-colors flex items-center space-x-1"
+                      title="Limpiar texto"
+                    >
+                      <i className="fas fa-times text-sm"></i>
+                      <span>Limpiar</span>
+                    </button>
+                  </div>
+                )}
+                
                 {appState.inputType === 'text' && (
                   <textarea
                     className="input-field resize-none h-32"
@@ -299,9 +319,7 @@ function App() {
                 {appState.inputType === 'voice' && (
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <div className="text-gray-500">
-                      <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                      </svg>
+                      <i className="fas fa-microphone text-5xl mb-4"></i>
                       <p>Grabadora de voz</p>
                       <p className="text-sm">Próximamente...</p>
                     </div>
@@ -311,9 +329,7 @@ function App() {
                 {appState.inputType === 'audio' && (
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <div className="text-gray-500">
-                      <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
+                      <i className="fas fa-cloud-upload-alt text-5xl mb-4"></i>
                       <p>Subir archivo de audio</p>
                       <p className="text-sm">Próximamente...</p>
                     </div>
@@ -383,23 +399,29 @@ function App() {
                     />
                   </div>
                   
-                  {/* Diagram Controls */}
-                  <DiagramControls
-                    onZoomIn={handleZoomIn}
-                    onZoomOut={handleZoomOut}
-                    onZoomReset={handleZoomReset}
-                    onFullscreen={handleFullscreen}
-                    onExportSVG={handleExportSVG}
-                    onClear={handleClearDiagram}
-                    isFullscreen={false}
-                  />
+                  {/* Mermaid Code Section - Collapsible */}
+                  <div className="mt-4 border-t border-gray-200 pt-4">
+                    <button
+                      onClick={() => setShowMermaidCode(!showMermaidCode)}
+                      className="flex items-center justify-between w-full text-left text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <span>Ver código Mermaid</span>
+                      <i className={`fas fa-chevron-${showMermaidCode ? 'up' : 'down'} text-xs`}></i>
+                    </button>
+                    
+                    {showMermaidCode && (
+                      <div className="mt-3">
+                        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700 overflow-x-auto">
+                          <code>{appState.currentDiagram.code}</code>
+                        </pre>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                   <div className="text-gray-500">
-                    <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
-                    </svg>
+                    <i className="fas fa-project-diagram text-5xl mb-4"></i>
                     <p>Aquí aparecerá tu diagrama</p>
                     <p className="text-sm">Genera un diagrama para visualizarlo</p>
                   </div>
@@ -419,6 +441,16 @@ function App() {
           diagramCode={appState.currentDiagram.code}
           diagramTitle={appState.currentDiagram.title}
         />
+      )}
+      
+      {/* Success Notification */}
+      {showSuccess && (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-lg px-6 py-4 flex items-center space-x-3 animate-fade-in">
+            <i className="fas fa-check-circle text-green-500 text-xl"></i>
+            <span className="text-gray-800 font-medium">Diagrama generado exitosamente</span>
+          </div>
+        </div>
       )}
     </div>
   );

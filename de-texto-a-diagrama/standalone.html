@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -228,15 +229,6 @@
             gap: 0.5rem;
         }
         
-        .success-message {
-            background-color: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
         
         .generated-code {
             background-color: #f8fafc;
@@ -390,6 +382,21 @@
             min-width: 40px;
             text-align: center;
         }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -410,6 +417,8 @@
             const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+            const [showSuccess, setShowSuccess] = useState(false);
+            const [showMermaidCode, setShowMermaidCode] = useState(false);
             const diagramRef = useRef(null);
             const modalDiagramRef = useRef(null);
 
@@ -723,6 +732,10 @@ config:
                     
                     setDiagram(newDiagram);
                     
+                    // Mostrar notificación de éxito
+                    setShowSuccess(true);
+                    setTimeout(() => setShowSuccess(false), 3000);
+                    
                     // Renderizar el diagrama
                     setTimeout(() => renderDiagram(enhancedCode), 100);
                 } catch (err) {
@@ -852,6 +865,30 @@ config:
                                             ))}
                                         </div>
 
+                                        {/* Clear button - only show when there's text */}
+                                        {inputText.trim() && (
+                                            <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem'}}>
+                                                <button
+                                                    onClick={handleClear}
+                                                    style={{
+                                                        fontSize: '0.875rem',
+                                                        color: '#6b7280',
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.25rem',
+                                                        transition: 'color 0.2s'
+                                                    }}
+                                                    title="Limpiar texto"
+                                                >
+                                                    <i className="fas fa-times" style={{fontSize: '0.875rem'}}></i>
+                                                    <span>Limpiar</span>
+                                                </button>
+                                            </div>
+                                        )}
+
                                         {inputType === 'text' && (
                                             <textarea
                                                 className="textarea"
@@ -865,7 +902,7 @@ config:
                                         {inputType !== 'text' && (
                                             <div className="placeholder-area">
                                                 <div className="placeholder-icon">
-                                                    {inputType === 'voice' ? '🎤' : '📁'}
+                                                    <i className={`fas ${inputType === 'voice' ? 'fa-microphone' : 'fa-cloud-upload-alt'}`} style={{fontSize: '3rem'}}></i>
                                                 </div>
                                                 <p>{inputType === 'voice' ? 'Grabadora de voz' : 'Subir archivo de audio'}</p>
                                                 <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>Próximamente...</p>
@@ -909,10 +946,6 @@ config:
                                         
                                         {diagram ? (
                                             <div>
-                                                <div className="success-message">
-                                                    ✅ Diagrama generado exitosamente
-                                                </div>
-                                                
                                                 <div 
                                                     className="diagram-area"
                                                     style={{
@@ -926,75 +959,57 @@ config:
                                                 >
                                                     <div ref={diagramRef} style={{minHeight: '200px'}}>
                                                         <div style={{textAlign: 'center', color: '#6b7280', padding: '2rem'}}>
-                                                            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>⏳</div>
+                                                            <i className="fas fa-spinner fa-spin" style={{fontSize: '2rem', marginBottom: '1rem'}}></i>
                                                             <p>Renderizando diagrama...</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="generated-code">
-{diagram.code}
-                                                </div>
-                                                
-                                                <div className="controls" style={{marginTop: '1rem'}}>
-                                                    <div className="controls-left">
-                                                        <button 
-                                                            onClick={() => setZoomLevel(prev => Math.min(prev + 25, 200))}
-                                                            className="btn-secondary"
-                                                            disabled={zoomLevel >= 200}
-                                                        >
-                                                            Zoom +
-                                                        </button>
-                                                        <span style={{fontSize: '0.75rem', color: '#6b7280', padding: '0 0.5rem'}}>
-                                                            {zoomLevel}%
-                                                        </span>
-                                                        <button 
-                                                            onClick={() => setZoomLevel(prev => Math.max(prev - 25, 25))}
-                                                            className="btn-secondary"
-                                                            disabled={zoomLevel <= 25}
-                                                        >
-                                                            Zoom -
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => setZoomLevel(100)}
-                                                            className="btn-secondary"
-                                                        >
-                                                            Reset
-                                                        </button>
-                                                    </div>
-                                                    <div style={{display: 'flex', gap: '0.5rem'}}>
-                                                        <button 
-                                                            onClick={() => {
-                                                                const svgElement = diagramRef.current?.querySelector('svg');
-                                                                if (svgElement) {
-                                                                    const svgData = new XMLSerializer().serializeToString(svgElement);
-                                                                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-                                                                    const svgUrl = URL.createObjectURL(svgBlob);
-                                                                    const downloadLink = document.createElement('a');
-                                                                    downloadLink.href = svgUrl;
-                                                                    downloadLink.download = `diagrama-${diagram.id}.svg`;
-                                                                    document.body.appendChild(downloadLink);
-                                                                    downloadLink.click();
-                                                                    document.body.removeChild(downloadLink);
-                                                                    URL.revokeObjectURL(svgUrl);
-                                                                }
-                                                            }}
-                                                            className="btn-secondary"
-                                                        >
-                                                            Exportar SVG
-                                                        </button>
-                                                        <button 
-                                                            onClick={handleClear}
-                                                            className="btn-secondary"
-                                                        >
-                                                            Limpiar
-                                                        </button>
-                                                    </div>
+                                                {/* Mermaid Code Section - Collapsible */}
+                                                <div style={{marginTop: '1rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
+                                                    <button
+                                                        onClick={() => setShowMermaidCode(!showMermaidCode)}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            width: '100%',
+                                                            textAlign: 'left',
+                                                            fontSize: '0.875rem',
+                                                            color: '#6b7280',
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            transition: 'color 0.2s'
+                                                        }}
+                                                    >
+                                                        <span>Ver código Mermaid</span>
+                                                        <i className={`fas fa-chevron-${showMermaidCode ? 'up' : 'down'}`} style={{fontSize: '0.75rem'}}></i>
+                                                    </button>
+                                                    
+                                                    {showMermaidCode && (
+                                                        <div style={{marginTop: '0.75rem'}}>
+                                                            <pre style={{
+                                                                backgroundColor: '#f9fafb',
+                                                                border: '1px solid #e5e7eb',
+                                                                borderRadius: '0.5rem',
+                                                                padding: '0.75rem',
+                                                                fontSize: '0.75rem',
+                                                                color: '#374151',
+                                                                overflowX: 'auto',
+                                                                margin: 0
+                                                            }}>
+                                                                <code>{diagram.code}</code>
+                                                            </pre>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="placeholder-area">
-                                                <div className="placeholder-icon">📊</div>
+                                                <div className="placeholder-icon">
+                                                    <i className="fas fa-project-diagram" style={{fontSize: '3rem'}}></i>
+                                                </div>
                                                 <p>Aquí aparecerá tu diagrama</p>
                                                 <p style={{fontSize: '0.75rem', marginTop: '0.5rem'}}>
                                                     Genera un diagrama para visualizarlo
@@ -1097,6 +1112,31 @@ config:
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Success Notification */}
+                    {showSuccess && (
+                        <div style={{
+                            position: 'fixed',
+                            bottom: '2rem',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            zIndex: 50
+                        }}>
+                            <div style={{
+                                backgroundColor: 'white',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '0.5rem',
+                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                padding: '1rem 1.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem'
+                            }} className="animate-fade-in">
+                                <i className="fas fa-check-circle" style={{color: '#10b981', fontSize: '1.25rem'}}></i>
+                                <span style={{color: '#1f2937', fontWeight: 500}}>Diagrama generado exitosamente</span>
                             </div>
                         </div>
                     )}
