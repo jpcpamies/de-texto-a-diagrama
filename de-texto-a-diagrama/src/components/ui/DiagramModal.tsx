@@ -4,7 +4,6 @@ import mermaid from 'mermaid';
 interface DiagramModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onMinimize: () => void;
   diagramCode: string;
   diagramTitle: string;
 }
@@ -12,7 +11,6 @@ interface DiagramModalProps {
 export const DiagramModal: React.FC<DiagramModalProps> = ({
   isOpen,
   onClose,
-  onMinimize,
   diagramCode,
   diagramTitle
 }) => {

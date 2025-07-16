@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { initializeGA4 } from './analytics/gtag';
 import { trackAppLoaded } from './analytics/events';
-import { DiagramRenderer, DiagramControls } from './components/diagram';
+import { DiagramRenderer } from './components/diagram';
 import { DiagramModal } from './components/ui';
 import { generateCreativeTitle } from './utils/titleGenerator';
 import { enhanceDiagramWithStyles } from './services/diagram';
+import { generateDiagram } from './services/gemini';
 import type { InputType, AppState } from './types';
 
 function App() {
@@ -17,7 +18,6 @@ function App() {
   });
 
   const [inputText, setInputText] = useState('');
-  const [zoomLevel, setZoomLevel] = useState(100);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showMermaidCode, setShowMermaidCode] = useState(false);
@@ -150,12 +150,31 @@ function App() {
     }));
 
     try {
-      // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // First, try to generate with Gemini AI
+      const aiResponse = await generateDiagram({ 
+        input: inputText,
+        context: 'Generate a clear and logical diagram that represents the described process, system, or concept.'
+      });
       
-      const mermaidCode = generateMermaidCode(inputText);
+      let mermaidCode: string;
+      let diagramType: string;
+      let isAIGenerated = false;
+      
+      if (aiResponse.success && aiResponse.data) {
+        // AI generation succeeded
+        mermaidCode = aiResponse.data.mermaidCode;
+        diagramType = aiResponse.data.diagramType;
+        isAIGenerated = true;
+        console.log('✅ Diagram generated with AI');
+      } else {
+        // AI generation failed, fallback to pattern-based generation
+        console.log('⚠️ AI generation failed, using pattern-based fallback:', aiResponse.error);
+        mermaidCode = generateMermaidCode(inputText);
+        diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
+        isAIGenerated = false;
+      }
+      
       const enhancedCode = enhanceDiagramWithStyles(mermaidCode);
-      const diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
       const diagramTitle = generateCreativeTitle(inputText, diagramType);
       
       setAppState(prev => ({
@@ -170,15 +189,46 @@ function App() {
         },
       }));
       
-      // Mostrar notificación de éxito
+      // Mostrar notificación de éxito con información sobre el método usado
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+      
+      // Log generation method for debugging
+      console.log(`🎯 Diagram generated using ${isAIGenerated ? 'AI' : 'pattern-based'} method`);
+      
     } catch (error) {
-      setAppState(prev => ({
-        ...prev,
-        isProcessing: false,
-        error: error instanceof Error ? error.message : 'Error desconocido',
-      }));
+      console.error('❌ Error in diagram generation:', error);
+      
+      // Even if everything fails, try the pattern-based approach as final fallback
+      try {
+        const fallbackCode = generateMermaidCode(inputText);
+        const enhancedCode = enhanceDiagramWithStyles(fallbackCode);
+        const diagramType = fallbackCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
+        const diagramTitle = generateCreativeTitle(inputText, diagramType);
+        
+        setAppState(prev => ({
+          ...prev,
+          isProcessing: false,
+          currentDiagram: {
+            id: crypto.randomUUID(),
+            code: enhancedCode,
+            type: diagramType as any,
+            title: diagramTitle,
+            createdAt: new Date(),
+          },
+        }));
+        
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+        console.log('🔄 Used emergency fallback generation');
+        
+      } catch (fallbackError) {
+        setAppState(prev => ({
+          ...prev,
+          isProcessing: false,
+          error: 'Error al generar diagrama. Por favor, intenta con un texto diferente.',
+        }));
+      }
     }
   };
 
@@ -192,19 +242,6 @@ function App() {
     setInputText('');
   };
 
-  // Funciones para controles del diagrama
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 25, 200));
-  };
-
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 25, 25));
-  };
-
-  const handleZoomReset = () => {
-    setZoomLevel(100);
-  };
-
   const handleFullscreen = () => {
     setIsModalOpen(true);
   };
@@ -213,29 +250,6 @@ function App() {
     setIsModalOpen(false);
   };
 
-  const handleMinimizeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleExportSVG = () => {
-    if (!appState.currentDiagram) return;
-    
-    // Buscar el SVG generado por Mermaid
-    const svgElement = document.querySelector('.mermaid svg') || document.querySelector('svg');
-    if (svgElement) {
-      const svgData = new XMLSerializer().serializeToString(svgElement);
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-      
-      const downloadLink = document.createElement('a');
-      downloadLink.href = svgUrl;
-      downloadLink.download = `diagrama-${appState.currentDiagram.id}.svg`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(svgUrl);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -388,11 +402,6 @@ function App() {
                   {/* Diagram Display Area */}
                   <div 
                     className="relative cursor-pointer"
-                    style={{ 
-                      transform: `scale(${zoomLevel / 100})`,
-                      transformOrigin: 'top left',
-                      transition: 'transform 0.2s ease'
-                    }}
                     onClick={handleFullscreen}
                     title="Clic para ampliar en pantalla completa"
                   >
@@ -441,7 +450,6 @@ function App() {
         <DiagramModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onMinimize={handleMinimizeModal}
           diagramCode={appState.currentDiagram.code}
           diagramTitle={appState.currentDiagram.title}
         />
