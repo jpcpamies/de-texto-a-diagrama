@@ -38,104 +38,7 @@ function App() {
     }));
   };
 
-  const cleanTextForMermaid = (text: string): string => {
-    // Remover emojis que causan problemas de sintaxis
-    let cleanText = text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
-    
-    // Limpiar caracteres especiales problemáticos
-    cleanText = cleanText.replace(/[^\w\sáéíóúñÁÉÍÓÚÑ.,():-]/g, ' ');
-    
-    // Normalizar espacios múltiples
-    cleanText = cleanText.replace(/\s+/g, ' ').trim();
-    
-    return cleanText;
-  };
 
-  const generateMermaidCode = (text: string): string => {
-    const cleanText = cleanTextForMermaid(text);
-    const lowerText = cleanText.toLowerCase();
-    
-    // Detectar recetas de cocina
-    if (lowerText.includes('tortilla') || lowerText.includes('receta') || lowerText.includes('cocinar') || 
-        lowerText.includes('ingredientes') || lowerText.includes('patatas') || lowerText.includes('cocina')) {
-      return `graph TD
-    A[Preparar ingredientes] --> B[Calentar aceite en sarten]
-    B --> C[Freir patatas]
-    C --> D[Batir huevos]
-    D --> E[Mezclar patatas con huevos]
-    E --> F[Cuajar tortilla por un lado]
-    F --> G[Dar la vuelta]
-    G --> H[Cuajar por el otro lado]
-    H --> I[Servir caliente]`;
-    }
-    
-    // Detectar tipo de diagrama basado en el contenido
-    if (lowerText.includes('login') || lowerText.includes('autenticar') || lowerText.includes('usuario')) {
-      return `graph TD
-    A[Usuario ingresa credenciales] --> B{Validar usuario}
-    B -->|Válido| C[Acceso concedido]
-    B -->|Inválido| D[Mostrar error]
-    D --> A
-    C --> E[Dashboard principal]`;
-    }
-    
-    if (lowerText.includes('proceso') || lowerText.includes('flujo') || lowerText.includes('workflow')) {
-      return `graph LR
-    A[Inicio] --> B[Recopilar datos]
-    B --> C[Procesar información]
-    C --> D{¿Es válido?}
-    D -->|Sí| E[Guardar resultado]
-    D -->|No| F[Reportar error]
-    E --> G[Fin]
-    F --> G`;
-    }
-    
-    if (lowerText.includes('compra') || lowerText.includes('tienda') || lowerText.includes('carrito')) {
-      return `graph TD
-    A[Explorar productos] --> B[Añadir al carrito]
-    B --> C[Ver carrito]
-    C --> D[Proceder al pago]
-    D --> E[Introducir datos de pago]
-    E --> F[Confirmar pedido]
-    F --> G[Pedido completado]`;
-    }
-    
-    if (lowerText.includes('clase') || lowerText.includes('objeto') || lowerText.includes('herencia')) {
-      return `classDiagram
-    class Usuario {
-        +String nombre
-        +String email
-        +login()
-        +logout()
-    }
-    class Administrador {
-        +String permisos
-        +gestionarUsuarios()
-    }
-    Usuario <|-- Administrador`;
-    }
-    
-    // Extraer conceptos principales de manera más robusta
-    const words = cleanText.split(/\s+/).filter(word => 
-      word.length > 3 && 
-      !['para', 'pero', 'este', 'esta', 'solo', 'cada', 'todo', 'todos', 'todas'].includes(word.toLowerCase())
-    );
-    const mainConcepts = words.slice(0, 4).map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    );
-    
-    if (mainConcepts.length >= 2) {
-      return `graph TD
-    A[${mainConcepts[0] || 'Inicio'}] --> B[${mainConcepts[1] || 'Proceso'}]
-    B --> C[${mainConcepts[2] || 'Análisis'}]
-    C --> D[${mainConcepts[3] || 'Resultado'}]`;
-    }
-    
-    return `graph TD
-    A[Inicio] --> B[Proceso]
-    B --> C[Resultado]
-    C --> D[Fin]`;
-  };
 
   const handleGenerateDiagram = async () => {
     if (!inputText.trim()) {
@@ -150,60 +53,18 @@ function App() {
     }));
 
     try {
-      // First, try to generate with Gemini AI
+      // Generate with Gemini AI only
       const aiResponse = await generateDiagram({ 
         input: inputText,
         context: 'Generate a clear and logical diagram that represents the described process, system, or concept.'
       });
       
-      let mermaidCode: string;
-      let diagramType: string;
-      let isAIGenerated = false;
-      
       if (aiResponse.success && aiResponse.data) {
         // AI generation succeeded
-        mermaidCode = aiResponse.data.mermaidCode;
-        diagramType = aiResponse.data.diagramType;
-        isAIGenerated = true;
-        console.log('✅ Diagram generated with AI');
-      } else {
-        // AI generation failed, fallback to pattern-based generation
-        console.log('⚠️ AI generation failed, using pattern-based fallback:', aiResponse.error);
-        mermaidCode = generateMermaidCode(inputText);
-        diagramType = mermaidCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
-        isAIGenerated = false;
-      }
-      
-      const enhancedCode = enhanceDiagramWithStyles(mermaidCode);
-      const diagramTitle = generateCreativeTitle(inputText, diagramType);
-      
-      setAppState(prev => ({
-        ...prev,
-        isProcessing: false,
-        currentDiagram: {
-          id: crypto.randomUUID(),
-          code: enhancedCode,
-          type: diagramType as any,
-          title: diagramTitle,
-          createdAt: new Date(),
-        },
-      }));
-      
-      // Mostrar notificación de éxito con información sobre el método usado
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-      
-      // Log generation method for debugging
-      console.log(`🎯 Diagram generated using ${isAIGenerated ? 'AI' : 'pattern-based'} method`);
-      
-    } catch (error) {
-      console.error('❌ Error in diagram generation:', error);
-      
-      // Even if everything fails, try the pattern-based approach as final fallback
-      try {
-        const fallbackCode = generateMermaidCode(inputText);
-        const enhancedCode = enhanceDiagramWithStyles(fallbackCode);
-        const diagramType = fallbackCode.startsWith('classDiagram') ? 'classDiagram' : 'flowchart';
+        const mermaidCode = aiResponse.data.mermaidCode;
+        const diagramType = aiResponse.data.diagramType;
+        
+        const enhancedCode = mermaidCode; // No processing
         const diagramTitle = generateCreativeTitle(inputText, diagramType);
         
         setAppState(prev => ({
@@ -218,17 +79,29 @@ function App() {
           },
         }));
         
+        // Mostrar notificación de éxito
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
-        console.log('🔄 Used emergency fallback generation');
         
-      } catch (fallbackError) {
+        console.log('✅ Diagram generated with Gemini AI');
+        
+      } else {
+        // AI generation failed - show error instead of fallback
         setAppState(prev => ({
           ...prev,
           isProcessing: false,
-          error: 'Error al generar diagrama. Por favor, intenta con un texto diferente.',
+          error: `Error al generar diagrama con IA: ${aiResponse.error}`,
         }));
+        console.log('❌ AI generation failed:', aiResponse.error);
       }
+      
+    } catch (error) {
+      console.error('❌ Error in diagram generation:', error);
+      setAppState(prev => ({
+        ...prev,
+        isProcessing: false,
+        error: 'Error al generar diagrama. Verifica tu conexión a internet y la configuración de la API.',
+      }));
     }
   };
 

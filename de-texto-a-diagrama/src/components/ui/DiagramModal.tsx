@@ -142,32 +142,6 @@ export const DiagramModal: React.FC<DiagramModalProps> = ({
     }
   };
 
-  const resetView = () => {
-    // Recalcular zoom óptimo
-    const svgElement = diagramRef.current?.querySelector('svg');
-    if (svgElement && containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const svgRect = svgElement.getBoundingClientRect();
-      
-      if (containerRect && svgRect) {
-        // Obtener dimensiones reales del SVG
-        const realSvgWidth = svgRect.width / (zoom / 100);
-        const realSvgHeight = svgRect.height / (zoom / 100);
-        
-        const availableWidth = containerRect.width * 0.7;
-        const availableHeight = containerRect.height * 0.7;
-        
-        const widthRatio = availableWidth / realSvgWidth;
-        const heightRatio = availableHeight / realSvgHeight;
-        const optimalZoom = Math.min(widthRatio, heightRatio) * 100;
-        
-        setZoom(Math.min(Math.max(optimalZoom, 25), 90));
-      }
-    } else {
-      setZoom(60);
-    }
-    setPosition({ x: 0, y: 0 });
-  };
 
   if (!isOpen) return null;
 

@@ -79,6 +79,9 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
           containerRef.current.innerHTML = '';
         }
 
+        // Log del código generado para debugging
+        console.log('🔍 Attempting to render Mermaid code:', code);
+
         // Validar sintaxis de Mermaid
         const isValid = await mermaid.parse(code);
         if (!isValid) {
@@ -98,9 +101,12 @@ export const DiagramRenderer: React.FC<DiagramRendererProps> = ({
             svgElement.style.height = 'auto';
             svgElement.style.background = 'transparent';
           }
+          
+          console.log('✅ Diagram rendered successfully');
         }
       } catch (err) {
-        console.error('Error rendering diagram:', err);
+        console.error('❌ Error rendering diagram:', err);
+        console.error('📄 Code that failed:', code);
         
         // Proporcionar mensajes de error más específicos
         let errorMessage = 'Error desconocido al renderizar';

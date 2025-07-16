@@ -19,6 +19,68 @@ const initializeGemini = () => {
   return genAI;
 };
 
+// Format Mermaid code to ensure each relation/arrow is on a separate line
+const formatMermaidCode = (code: string): string => {
+  // Remove markdown blocks and basic cleanup
+  let formattedCode = code
+    .replace(/^```mermaid\s*\n?/gm, '')
+    .replace(/^```\s*$/gm, '')
+    .trim();
+  
+  // Fix problematic characters
+  formattedCode = formattedCode
+    .replace(/\(/g, ' - ')  // Replace ( with -
+    .replace(/\)/g, '')     // Remove )
+    .replace(/"/g, '')      // Remove quotes
+    .replace(/'/g, '')      // Remove apostrophes
+    .trim();
+  
+  // Split by common patterns and rejoin with proper formatting
+  // First, handle the graph declaration
+  let lines: string[] = [];
+  const graphMatch = formattedCode.match(/^(graph\s+\w+|flowchart\s+\w+|sequenceDiagram|classDiagram|erDiagram|journey|gantt|pie|gitgraph)/);
+  
+  if (graphMatch) {
+    lines.push(graphMatch[0]);
+    formattedCode = formattedCode.replace(graphMatch[0], '').trim();
+  }
+  
+  // Now split by arrows and connections, keeping the separators
+  const parts = formattedCode.split(/(\s*-->\s*|\s*--\s*|\s*==>\s*|\s*-\.->\s*|\s*\|\s*)/);
+  
+  let currentLine = '';
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i].trim();
+    
+    if (part.match(/^(-->|--|==>|-\.->|\|)$/)) {
+      // This is an arrow/connector
+      if (currentLine) {
+        lines.push('    ' + currentLine);
+        currentLine = '';
+      }
+      
+      // Add the arrow and the next part
+      if (i + 1 < parts.length) {
+        lines.push('    ' + part + ' ' + parts[i + 1].trim());
+        i++; // Skip the next part as we already processed it
+      }
+    } else if (part) {
+      // This is a node definition
+      if (currentLine) {
+        lines.push('    ' + currentLine);
+      }
+      currentLine = part;
+    }
+  }
+  
+  // Add the last line if exists
+  if (currentLine) {
+    lines.push('    ' + currentLine);
+  }
+  
+  return lines.join('\n').trim();
+};
+
 // Detect diagram type from content
 const detectDiagramType = (content: string): DiagramData['type'] => {
   const lowerContent = content.toLowerCase();
@@ -50,15 +112,24 @@ const detectDiagramType = (content: string): DiagramData['type'] => {
 
 // Generate system prompt for diagram generation
 const generateSystemPrompt = (diagramType: DiagramData['type']) => {
-  const basePrompt = `You are an expert in creating Mermaid diagrams. Your task is to convert natural language descriptions into valid Mermaid syntax.
+  const basePrompt = `Convierte el siguiente texto en un diagrama Mermaid válido.
 
-IMPORTANT RULES:
-1. Return ONLY the Mermaid code, no explanations or extra text
-2. Use proper Mermaid syntax for ${diagramType} diagrams
-3. Keep node labels concise but descriptive
-4. Avoid special characters that might break Mermaid parsing
-5. Use proper indentation and formatting
-6. Make sure the diagram flows logically from the description
+REGLAS IMPORTANTES:
+- Cada línea debe ser una declaración completa
+- Usa saltos de línea correctos 
+- Sintaxis exacta de Mermaid
+- Sin caracteres especiales problemáticos
+- Estructura clara y legible
+
+FORMATO REQUERIDO:
+graph TD
+    A[Inicio]
+    A --> B[Proceso]
+    B --> C{Decisión}
+    C -->|Sí| D[Acción]
+    C -->|No| E[Otra acción]
+
+Devuelve SOLO el código Mermaid válido:
 
 `;
 
@@ -166,14 +237,11 @@ Generate the Mermaid code:`;
     const response = await result.response;
     const text = response.text();
     
-    // Clean up the response (remove markdown code blocks if present)
-    const cleanedCode = text
-      .replace(/^```mermaid\s*\n?/gm, '')
-      .replace(/^```\s*$/gm, '')
-      .trim();
+    // Format Mermaid code to ensure proper line breaks
+    const cleanedCode = formatMermaidCode(text);
     
-    // Basic validation that we got something that looks like Mermaid
-    if (!cleanedCode || cleanedCode.length < 10) {
+    // Basic validation
+    if (!cleanedCode || cleanedCode.length < 5) {
       throw new Error('Generated code is too short or empty');
     }
     
